@@ -1,0 +1,7 @@
+__pycache__/
+**/joblogs/**
+reframe.log
+reframe.out
+perflogs/
+stage/
+output/
