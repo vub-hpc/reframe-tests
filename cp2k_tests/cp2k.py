@@ -52,7 +52,7 @@ class CP2KTestBase(rfm.RunOnlyRegressionTest):
 
 
 @rfm.simple_test
-class CP2KTestMC(CP2KTestBase):
+class CP2KTestSingleNode(CP2KTestBase):
     descr += ' single-node, multi-core'
 
     @run_after('init')
@@ -61,7 +61,7 @@ class CP2KTestMC(CP2KTestBase):
 
 
 @rfm.simple_test
-class CP2KTestMN(CP2KTestBase):
+class CP2KTestMultiNode(CP2KTestBase):
     descr += ' multi-node'
     num_tasks_per_node = required
 

@@ -13,9 +13,6 @@ try:
 except Exception:
     commit = ''
 
-# use 'local' to run locally (or select partition with 'local' partition)
-scheduler = 'slurm'
-
 perf_logging_format = 'reframe: ' + '|'.join(
     [
         'username=%(osuser)s',
@@ -46,6 +43,10 @@ environs_cpu = [
     'intel-2020b',
     'foss-2021a',
     'intel-2021a',
+    'foss-2021b',
+    'intel-2021b',
+    'foss-2022a',
+    'intel-2022a',
 ]
 
 environs_gpu = [
@@ -56,9 +57,9 @@ environs_gpu = [
 site_configuration = {
     'systems': [
         {
-            'name': 'hydra',
-            'descr': 'Hydra',
-            'hostnames': ['login1.cerberus.os', 'login2.cerberus.os', '.*hydra.*'],
+            'name': 'local',
+            'descr': 'VUB-HPC local node',
+            'hostnames': ['.*'],
             'modules_system': 'lmod',
             'partitions': [
                 {
@@ -67,13 +68,36 @@ site_configuration = {
                     'modules': [],
                     'access': [],
                     'environs': environs_cpu,
-                    'descr': 'tests in the local node (no job)',
+                    'descr': 'tests in local node(s) (no job)',
                     'max_jobs': 1,
                     'launcher': 'local',
                 },
                 {
+                    'name': 'local-mpi',
+                    'scheduler': 'local',
+                    'modules': [],
+                    'access': [],
+                    'environs': environs_cpu,
+                    'descr': 'MPI tests in local node(s) (no job)',
+                    'max_jobs': 1,
+                    'launcher': 'srun',
+                },
+            ],
+        },
+        {
+            'name': 'hydra',
+            'descr': 'VUB-HPC hydra cluster',
+            'hostnames': ['.*'],
+            'modules_system': 'lmod',
+            'variables': [
+                ['SLURM_CLUSTERS', 'hydra'],
+                ['SLURM_CONF', '/etc/slurm/slurm.conf_hydra'],
+                ['VSC_INSTITUTE_CLUSTER', 'hydra'],
+            ],
+            'partitions': [
+                {
                     'name': 'skylake-sn',
-                    'scheduler': scheduler,
+                    'scheduler': 'slurm',
                     'modules': [],
                     'access': ['--partition=skylake,skylake_mpi'],
                     'environs': environs_cpu,
@@ -83,7 +107,7 @@ site_configuration = {
                 },
                 {
                     'name': 'skylake-sn-mpi',
-                    'scheduler': scheduler,
+                    'scheduler': 'slurm',
                     'modules': [],
                     'access': ['--partition=skylake,skylake_mpi'],
                     'environs': environs_cpu,
@@ -93,7 +117,7 @@ site_configuration = {
                 },
                 {
                     'name': 'skylake-mn-mpi-ib',
-                    'scheduler': scheduler,
+                    'scheduler': 'slurm',
                     'modules': [],
                     'access': ['--partition=skylake_mpi'],
                     'environs': environs_cpu,
@@ -103,7 +127,7 @@ site_configuration = {
                 },
                 {
                     'name': 'skylake-mn-mpi-eth',
-                    'scheduler': scheduler,
+                    'scheduler': 'slurm',
                     'modules': [],
                     'access': ['--partition=skylake'],
                     'environs': environs_cpu,
@@ -113,7 +137,7 @@ site_configuration = {
                 },
                 {
                     'name': 'broadwell-sn',
-                    'scheduler': scheduler,
+                    'scheduler': 'slurm',
                     'modules': [],
                     'access': ['--partition=broadwell'],
                     'environs': environs_cpu,
@@ -123,7 +147,7 @@ site_configuration = {
                 },
                 {
                     'name': 'broadwell-mpi',
-                    'scheduler': scheduler,
+                    'scheduler': 'slurm',
                     'modules': [],
                     'access': ['--partition=broadwell'],
                     'environs': environs_cpu,
@@ -133,7 +157,7 @@ site_configuration = {
                 },
                 {
                     'name': 'ivybridge-sn',
-                    'scheduler': scheduler,
+                    'scheduler': 'slurm',
                     'modules': [],
                     'access': ['--partition=ivybridge_mpi'],
                     'environs': environs_cpu,
@@ -143,7 +167,7 @@ site_configuration = {
                 },
                 {
                     'name': 'ivybridge-mpi',
-                    'scheduler': scheduler,
+                    'scheduler': 'slurm',
                     'modules': [],
                     'access': ['--partition=ivybridge_mpi'],
                     'environs': environs_cpu,
@@ -152,8 +176,8 @@ site_configuration = {
                     'launcher': 'srun',
                 },
                 {
-                    'name': 'broadwell-pascal-sn',
-                    'scheduler': scheduler,
+                    'name': 'broadwell-pascal-sn-gpu',
+                    'scheduler': 'slurm',
                     'modules': [],
                     'access': ['--partition=pascal_gpu'],
                     'environs': environs_cpu + environs_gpu,
@@ -168,8 +192,8 @@ site_configuration = {
                     'launcher': 'local',
                 },
                 {
-                    'name': 'zen2-ampere-sn',
-                    'scheduler': scheduler,
+                    'name': 'zen2-ampere-sn-gpu',
+                    'scheduler': 'slurm',
                     'modules': [],
                     'access': ['--partition=ampere_gpu'],
                     'environs': environs_cpu + environs_gpu,
@@ -184,13 +208,22 @@ site_configuration = {
                     'launcher': 'local',
                 },
                 {
-                    'name': 'ivybridge-kepler',
-                    'scheduler': scheduler,
+                    'name': 'zen2-ampere-mpi',
+                    'scheduler': 'slurm',
                     'modules': [],
-                    'access': [],
-                    'access': ['--partition=kepler_gpu'],
+                    'access': ['--partition=ampere_gpu'],
+                    'environs': environs_cpu,
+                    'descr': 'MPI jobs in Zen2 nodes',
+                    'max_jobs': 1,
+                    'launcher': 'srun',
+                },
+                {
+                    'name': 'zen2-ampere-mpi-gpu',
+                    'scheduler': 'slurm',
+                    'modules': [],
+                    'access': ['--partition=ampere_gpu'],
                     'environs': environs_cpu + environs_gpu,
-                    'descr': 'single-node jobs in Ivybridge nodes with Kepler K20 GPUs',
+                    'descr': 'MPI jobs in Zen2 nodes with Ampere A100 GPUs',
                     'max_jobs': 1,
                     'resources': [
                         {
@@ -198,31 +231,37 @@ site_configuration = {
                             'options': ['--gres=gpu:{num_gpus_per_node}'],
                         },
                     ],
-                    'launcher': 'local',
+                    'launcher': 'srun',
                 },
             ],
         },
         {
             'name': 'chimera',
-            'descr': 'Chimera',
-            'hostnames': ['login1.cerberus.os', 'login2.cerberus.os', '.*chimera.*'],
+            'descr': 'VUB-HPC chimera cluster',
+            'hostnames': ['.*'],
             'modules_system': 'lmod',
+            # 'modules': ['cluster/chimera'],  # does not work for some reason, set envars explicitly instead
+            'variables': [
+                ['SLURM_CLUSTERS', 'chimera'],
+                ['SLURM_CONF', '/etc/slurm/slurm.conf_chimera'],
+                ['VSC_INSTITUTE_CLUSTER', 'chimera'],
+            ],
             'partitions': [
                 {
-                    'name': 'haswell',
-                    'scheduler': scheduler,
-                    'modules': ['cluster/chimera'],
-                    'access': [],
+                    'name': 'haswell-sn',
+                    'scheduler': 'slurm',
+                    'modules': [],
+                    'access': ['--partition=haswell_mpi'],
                     'environs': environs_cpu,
                     'descr': 'single-node jobs in Haswell nodes',
                     'max_jobs': 1,
                     'launcher': 'local',
                 },
                 {
-                    'name': 'broadwell',
-                    'scheduler': scheduler,
-                    'modules': ['cluster/chimera'],
-                    'access': [],
+                    'name': 'broadwell-sn',
+                    'scheduler': 'slurm',
+                    'modules': [],
+                    'access': ['--partition=broadwell_mpi'],
                     'environs': environs_cpu,
                     'descr': 'single-node jobs in Broadwell nodes',
                     'max_jobs': 1,
@@ -230,9 +269,9 @@ site_configuration = {
                 },
                 {
                     'name': 'haswell-mpi',
-                    'scheduler': scheduler,
-                    'modules': ['cluster/chimera'],
-                    'access': [],
+                    'scheduler': 'slurm',
+                    'modules': [],
+                    'access': ['--partition=haswell_mpi'],
                     'environs': environs_cpu,
                     'descr': 'MPI jobs in Haswell nodes',
                     'max_jobs': 1,
@@ -240,11 +279,65 @@ site_configuration = {
                 },
                 {
                     'name': 'broadwell-mpi',
-                    'scheduler': scheduler,
-                    'modules': ['cluster/chimera'],
-                    'access': [],
+                    'scheduler': 'slurm',
+                    'modules': [],
+                    'access': ['--partition=broadwell_mpi'],
                     'environs': environs_cpu,
                     'descr': 'MPI jobs in Broadwell nodes',
+                    'max_jobs': 1,
+                    'launcher': 'srun',
+                },
+            ],
+        },
+        {
+            'name': 'manticore',
+            'descr': 'VUB-HPC manticore cluster',
+            'hostnames': ['.*'],
+            'modules_system': 'lmod',
+            # 'modules': ['cluster/manticore'],  # does not work for some reason, set envars explicitly instead
+            'variables': [
+                ['SLURM_CLUSTERS', 'manticore'],
+                ['SLURM_CONF', '/etc/slurm/slurm.conf_manticore'],
+                ['VSC_INSTITUTE_CLUSTER', 'manticore'],
+            ],
+            'partitions': [
+                {
+                    'name': 'skylake-sn',
+                    'scheduler': 'slurm',
+                    'modules': [],
+                    'access': ['--partition=skylake_mpi'],
+                    'environs': environs_cpu,
+                    'descr': 'single-node jobs in Skylake nodes',
+                    'max_jobs': 10,
+                    'launcher': 'local',
+                },
+                {
+                    'name': 'skylake-mpi',
+                    'scheduler': 'slurm',
+                    'modules': [],
+                    'access': ['--partition=skylake_mpi'],
+                    'environs': environs_cpu,
+                    'descr': 'MPI jobs in Skylake nodes',
+                    'max_jobs': 1,
+                    'launcher': 'srun',
+                },
+                {
+                    'name': 'ivybridge-sn',
+                    'scheduler': 'slurm',
+                    'modules': [],
+                    'access': ['--partition=ivybridge'],
+                    'environs': environs_cpu,
+                    'descr': 'single-node jobs in Ivybridge nodes',
+                    'max_jobs': 10,
+                    'launcher': 'local',
+                },
+                {
+                    'name': 'ivybridge-mpi',
+                    'scheduler': 'slurm',
+                    'modules': [],
+                    'access': ['--partition=ivybridge'],
+                    'environs': environs_cpu,
+                    'descr': 'MPI jobs in Ivybridge nodes',
                     'max_jobs': 1,
                     'launcher': 'srun',
                 },
@@ -316,6 +409,34 @@ site_configuration = {
             'ftn': 'mpiifort',
         },
         {
+            'name': 'foss-2021b',
+            'modules': ['foss/2021b', 'Autotools/20210726-GCCcore-11.2.0'],
+            'cc': 'mpicc',
+            'cxx': 'mpicxx',
+            'ftn': 'mpif90',
+        },
+        {
+            'name': 'intel-2021b',
+            'modules': ['intel/2021b', 'Autotools/20210726-GCCcore-11.2.0'],
+            'cc': 'mpiicc',
+            'cxx': 'mpiicpc',
+            'ftn': 'mpiifort',
+        },
+        {
+            'name': 'foss-2022a',
+            'modules': ['foss/2022a', 'Autotools/20220317-GCCcore-11.3.0'],
+            'cc': 'mpicc',
+            'cxx': 'mpicxx',
+            'ftn': 'mpif90',
+        },
+        {
+            'name': 'intel-2022a',
+            'modules': ['intel/2022a', 'Autotools/20220317-GCCcore-11.3.0'],
+            'cc': 'mpiicc',
+            'cxx': 'mpiicpc',
+            'ftn': 'mpiifort',
+        },
+        {
             'name': 'fosscuda-2019b',
             'modules': ['fosscuda/2019b', 'Autotools/20180311-GCCcore-8.3.0'],
             'cc': 'mpicc',
@@ -336,10 +457,11 @@ site_configuration = {
             'handlers': [
                 {
                     'type': 'file',
-                    'name': 'reframe.log',
+                    'name': os.path.join(os.getenv('RFM_OUTPUT_DIR', os.curdir), 'logs', 'reframe.log'),
                     'level': 'debug',
                     'format': '[%(asctime)s] %(levelname)s: %(check_name)s: %(message)s',  # noqa: E501
                     'append': False,
+                    'timestamp': "%Y%m%d_%H%M%S",
                 },
                 {
                     'type': 'stream',
@@ -349,10 +471,11 @@ site_configuration = {
                 },
                 {
                     'type': 'file',
-                    'name': 'reframe.out',
+                    'name': os.path.join(os.getenv('RFM_OUTPUT_DIR', os.curdir), 'logs', 'reframe.out'),
                     'level': 'info',
                     'format': '%(message)s',
                     'append': False,
+                    'timestamp': "%Y%m%d_%H%M%S",
                 },
             ],
             'handlers_perflog': [
@@ -378,7 +501,7 @@ site_configuration = {
             'check_search_path': ['checks/'],
             'check_search_recursive': True,
             'purge_environment': True,
-            'resolve_module_conflicts': False,  # avoid loading the module before submitting the job
+            'resolve_module_conflicts': False,  # prevent that ReFrame loads modules before submitting the job
             'keep_stage_files': True,
         }
     ],

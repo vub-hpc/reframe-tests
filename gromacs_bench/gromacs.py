@@ -26,7 +26,7 @@ class GMXBenchMEMBase(rfm.RunOnlyRegressionTest):
         checksum_cmd + ' && ' + extract_cmd,
     ]
     time_limit = '10m'
-    executable_opts = ['-s', 'benchMEM.tpr', '-nsteps', '10000', '-resethway']
+    executable_opts = ['-s', 'benchMEM.tpr', '-nsteps', '12000', '-resetstep', '7000']
     logfile = os.path.join(f'{src_dir}', 'md.log')
     modules = required
     exclusive_access = required
@@ -41,7 +41,7 @@ class GMXBenchMEMBase(rfm.RunOnlyRegressionTest):
 
 
 @rfm.simple_test
-class GMXBenchMEMMC(GMXBenchMEMBase):
+class GMXBenchMEMSingleNode(GMXBenchMEMBase):
     descr += ' single node, multi-core'
     executable = 'gmx mdrun'
     num_tasks = 1
@@ -53,12 +53,11 @@ class GMXBenchMEMMC(GMXBenchMEMBase):
         self.executable_opts += ['-nt', f'{self.num_cpus_per_task}']
         self.variables = {
             'OMP_NUM_THREADS': f'{self.num_cpus_per_task}',
-            'OMP_PLACES': 'sockets',
         }
 
 
 @rfm.simple_test
-class GMXBenchMEMMN(GMXBenchMEMBase):
+class GMXBenchMEMMultiNode(GMXBenchMEMBase):
     descr += ' multi-node'
     executable = 'gmx_mpi mdrun'
     num_tasks = required
@@ -74,7 +73,7 @@ class GMXBenchMEMMN(GMXBenchMEMBase):
 
 
 @rfm.simple_test
-class GMXBenchMEMGPU(GMXBenchMEMBase):
+class GMXBenchMEMSingleNodeGPU(GMXBenchMEMBase):
     descr += ' single node, multi-core, 1 or more gpus'
     executable = 'gmx mdrun'
     num_tasks = 1
@@ -88,7 +87,6 @@ class GMXBenchMEMGPU(GMXBenchMEMBase):
         self.executable_opts += ['-nt', f'{self.num_cpus_per_task}']
         self.variables = {
             'OMP_NUM_THREADS': f'{self.num_cpus_per_task}',
-            'OMP_PLACES': 'sockets',
         }
         self.extra_resources = {
             'gpu': {'num_gpus_per_node': self.num_gpus_per_node},

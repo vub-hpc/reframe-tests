@@ -35,6 +35,7 @@ options:
      limit the amount of memory available for page cache by allocating most of the memory on a node
      forces most of the cached pages to be evicted
      note that this is relative to the amount of memory available on the node, not the memory allocated to the job
+-M Xg  -- hog memory with X amount of gigabytes
 -w  -- write file
 -W  -- check read after write
 -k  -- keepfile (only for the write test, since we need the files for the read test)
@@ -108,7 +109,7 @@ class iorReadTest(iorTestBase):
     def post_init(self):
         self.depends_on('iorWriteTest')
         self.depends_on('iorBuildTest')
-        self.executable_opts.extend(['-r', '-M', '90%'])
+        self.executable_opts.extend(['-r', '-M', '$(( SLURM_MEM_PER_CPU * SLURM_TASKS_PER_NODE / (1024 * 2) ))G'])
         self.postrun_cmds = [f'rm -rf {os.path.dirname(self.testfile)}']
 
     @require_deps

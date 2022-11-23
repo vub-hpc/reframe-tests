@@ -10,21 +10,40 @@ Running weekly tests for production
 ```
 # login to Hydra as vsc10001
 cd ~/reframe-tests
-source sourceme.sh
 ./run_weekly.sh
 ```
 
 Running tests in your account
 -----------------------------
 
-1. clone this repo in your account in Hydra
-2. `source sourceme.sh`
-3. copy the `run_weekly.sh` script and adapt
+```
+git clone git@ssh.dev.azure.com:v3/VUB-ICT/Directie%20ICT/HPC_reframe-tests
+cd HPC_Reframe-tests
+./run.sh <options>
+```
+
+Examples
+--------
+
+```
+# all Lmod tests as jobs in compute nodes
+./run.sh -c lmod
+# Lmod test LmodTestJavaMemory in the local node
+./run.sh -c lmod -n LmodTestJavaMemory --system local
+# OSU tests compiled with foss/2022a toolchain
+./run.sh -c osu --valid_prog_environs foss-2022a
+# OSU tests in ReFrame partition skylake-mn-mpi-ib
+./run.sh -c osu --partitions skylake-mn-mpi-ib
+# GROMACS GPU test in ReFrame partition zen2-ampere-sn-gpu
+./run.sh -c gromacs_bench --partition zen2-ampere-sn-gpu -n GMXBenchMEMSingleNodeGPU
+```
 
 Location of ouput and log files
 -------------------------------
 
-* `joblobs/`: job output and job error files
+All output is written to `VSC_SCRATCH_VO_USER/hpc-reframe-tests/`
+
+* `logs/` ReFrame log files
 * `perflogs/`: performance logs
-* `stage/`, `output/`: build and run scripts, output, and error files
+* `stage/`: build and run scripts, (job) output, and (job) error files
 
