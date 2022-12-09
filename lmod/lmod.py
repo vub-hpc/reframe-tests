@@ -368,3 +368,12 @@ class LmodTestCachedLoads(LmodTestBase):
     @sanity_function
     def assert_zero_exitcode(self):
         return sn.assert_eq(self.job.exitcode, 0)
+
+@rfm.simple_test
+class LmodTestNotCachedLoads(LmodTestBase):
+    descr += "load a module without spider cache and check for zero exit code"
+    executable = f'LMOD_CACHED_LOADS=0 ml foss/{calc_tcgen(-42)}'
+
+    @sanity_function
+    def assert_zero_exitcode(self):
+        return sn.assert_eq(self.job.exitcode, 0)
