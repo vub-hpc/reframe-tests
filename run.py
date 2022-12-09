@@ -25,7 +25,7 @@ any additional options not listed here are passed directly to ReFrame
 
 parser.add_argument('-c', '--checkpath', dest='checkpath', required=True,
                     help='path (relative to this script) of test directory or script')
-parser.add_argument('-n', '--name', dest='name',
+parser.add_argument('-n', '--name', dest='name', action='append',
                     help='check name')
 parser.add_argument('--system', dest='system', choices=['hydra', 'chimera', 'manticore', 'local'],
                     default='hydra', help='run tests in given cluster')
@@ -60,7 +60,7 @@ tests = [
     },
     {
         'checkpath': 'cp2k_tests',
-        'name': 'CP2KTestSingleNode',
+        'name': ['CP2KTestSingleNode'],
         'valid_systems': {
             'hydra': ['hydra:skylake-sn-mpi', 'hydra:broadwell-mpi', 'hydra:ivybridge-mpi'],
             'chimera': ['chimera:broadwell-mpi', 'chimera:haswell-mpi'],
@@ -79,7 +79,7 @@ tests = [
     },
     {
         'checkpath': 'cp2k_tests',
-        'name': 'CP2KTestMultiNode',
+        'name': ['CP2KTestMultiNode'],
         'valid_systems': {
             'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:ivybridge-mpi'],
             'chimera': ['chimera:broadwell-mpi', 'chimera:haswell-mpi'],
@@ -97,7 +97,7 @@ tests = [
     },
     {
         'checkpath': 'gromacs_bench',
-        'name': 'GMXBenchMEMMultiNode',
+        'name': ['GMXBenchMEMMultiNode'],
         'valid_systems': {
             'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:ivybridge-mpi'],
             'chimera': ['chimera:broadwell-mpi', 'chimera:haswell-mpi'],
@@ -115,7 +115,7 @@ tests = [
     },
     {
         'checkpath': 'gromacs_bench',
-        'name': 'GMXBenchMEMSingleNode',
+        'name': ['GMXBenchMEMSingleNode'],
         'valid_systems': {
             'hydra': ['hydra:skylake-sn', 'hydra:broadwell-sn', 'hydra:ivybridge-sn'],
             'chimera': ['chimera:broadwell-sn', 'chimera:haswell-sn'],
@@ -133,7 +133,7 @@ tests = [
     },
     {
         'checkpath': 'gromacs_bench',
-        'name': 'GMXBenchMEMSingleNodeGPU',
+        'name': ['GMXBenchMEMSingleNodeGPU'],
         'valid_systems': {
             'hydra': ['hydra:zen2-ampere-sn-gpu', 'hydra:broadwell-pascal-sn-gpu'],
             'local': ['local:local'],
@@ -224,12 +224,12 @@ if args.valid_prog_environs:
 else:
     valid_prog_environs = selected.get('valid_prog_environs', ['builtin'])
 
-name = selected.get('name') if not name else name
+name = selected.get('name', []) if not name else name
 
 cmd = [
     'reframe --run',
     f'--checkpath {checkpath}',
-    f'--name {name}' if name else '',
+    ' '.join([f'--name {x}' for x in name]),
     f'--system {system}',
     f'--setvar valid_prog_environs={",".join(valid_prog_environs)}',
     f'--setvar valid_systems={",".join(valid_systems)}',
