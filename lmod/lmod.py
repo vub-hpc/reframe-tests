@@ -1,11 +1,9 @@
 import json
 import filecmp
 import os
-import re
 import reframe as rfm
 import reframe.utility.sanity as sn
-import sys
-from datetime import date,datetime
+from datetime import date, datetime
 
 
 # check if memory in JAVA_TOOL_OPTIONS is set correctly
@@ -43,7 +41,7 @@ class LmodTestBase(rfm.RunOnlyRegressionTest):
 @rfm.simple_test
 class LmodTestConfig(LmodTestBase):
     descr += "configuration"
-    executable = ' && '.join ([
+    executable = ' && '.join([
         'module --config-json 2>config.json',
         'echo $VSC_INSTITUTE_CLUSTER-$VSC_ARCH_LOCAL$VSC_ARCH_SUFFIX',
     ])
@@ -99,7 +97,7 @@ class LmodTestAvail(LmodTestBase):
 
     @sanity_function
     def assert_output(self):
-        realtime = sn.extractsingle(rf'^real (\S+)$', self.stderr, 1, float)
+        realtime = sn.extractsingle(r'^real (\S+)$', self.stderr, 1, float)
         return sn.all([
             sn.assert_found(rf' foss/{calc_tcgen(-12)}', self.stdout, f'foss/{calc_tcgen(-12)}'),
             sn.assert_found(r' Python/', self.stdout, 'Python'),
@@ -328,6 +326,7 @@ class LmodTestClusterModule(LmodTestBase):
             sn.assert_found(rf'^{self.module}$', self.stdout, self.module),  # module list
         ])
 
+
 @rfm.simple_test
 class LmodTestLoadLmod(LmodTestBase):
     descr += "load a foss module and check if Lmod (lua) still works"
@@ -336,7 +335,6 @@ class LmodTestLoadLmod(LmodTestBase):
 
     @sanity_function
     def assert_output(self):
-        realtime = sn.extractsingle(rf'^real (\S+)$', self.stderr, 1, float)
         return sn.all([
             sn.assert_found(rf' foss/{calc_tcgen(-12)}', self.stdout, f'foss/{calc_tcgen(-12)}'),
             sn.assert_found(r' Python/', self.stdout, 'Python'),
@@ -347,6 +345,7 @@ class LmodTestLoadLmod(LmodTestBase):
                 'message: If you need software that is not listed'
                 ),
         ])
+
 
 @rfm.simple_test
 class LmodTestJavaMemory(LmodTestBase):
@@ -362,3 +361,18 @@ class LmodTestJavaMemory(LmodTestBase):
         return sn.assert_found(r'^True$', self.stdout)
 
 
+@rfm.simple_test
+class LmodTestCachedLoads(LmodTestBase):
+    descr += "load a module from spider cache and check for zero exit code"
+    lmod_cached_loads = 1
+    executable = f'LMOD_CACHED_LOADS={lmod_cached_loads} ml foss/{calc_tcgen(-42)}'
+
+    @sanity_function
+    def assert_zero_exitcode(self):
+        return sn.assert_eq(self.job.exitcode, 0)
+
+
+@rfm.simple_test
+class LmodTestNotCachedLoads(LmodTestCachedLoads):
+    descr += "load a module without spider cache and check for zero exit code"
+    lmod_cached_loads = 0
