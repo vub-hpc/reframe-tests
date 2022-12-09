@@ -360,4 +360,11 @@ class LmodTestJavaMemory(LmodTestBase):
     def assert_output(self):
         return sn.assert_found(r'^True$', self.stdout)
 
+@rfm.simple_test
+class LmodTestCachedLoads(LmodTestBase):
+    descr += "load a module from spider cache and check for zero exit code"
+    executable = f'LMOD_CACHED_LOADS=1 ml foss/{calc_tcgen(-42)}'
 
+    @sanity_function
+    def assert_zero_exitcode(self):
+        return sn.assert_eq(self.job.exitcode, 0)
