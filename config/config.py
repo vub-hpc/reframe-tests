@@ -8,8 +8,8 @@ else:
     syslog_level = 'warning'
 
 try:
-    repo = git.Repo(os.path.join(os.getcwd(), os.pardir))
-    commit = repo.git.rev_parse(repo.head.commit.hexsha, short=7)
+    repo = git.Repo(os.path.dirname(os.path.dirname(__file__)))
+    commit = repo.head.commit.committed_datetime
 except Exception:
     commit = ''
 
@@ -17,7 +17,7 @@ perf_logging_format = 'reframe: ' + '|'.join(
     [
         'username=%(osuser)s',
         'version=%(version)s',
-        f'commit={commit}',
+        f'commit={commit:%Y%m%d.%H%M}',
         'name=%(check_name)s',
         'system=%(check_system)s',
         'partition=%(check_partition)s',
