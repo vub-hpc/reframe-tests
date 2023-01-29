@@ -1,5 +1,6 @@
 import git
 import os
+from datetime import datetime
 
 # log to syslog only with vsc10001 account
 if os.getenv('USER') == 'vsc10001':
@@ -9,7 +10,7 @@ else:
 
 try:
     repo = git.Repo(os.path.dirname(os.path.dirname(__file__)))
-    commit = repo.head.commit.committed_datetime
+    commit = f'{datetime.fromtimestamp(repo.head.commit.committed_date):%Y%m%d.%H%M}'
 except Exception:
     commit = ''
 
