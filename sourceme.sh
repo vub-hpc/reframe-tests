@@ -1,4 +1,4 @@
-ml ReFrame/4.0.6
+ml ReFrame/4.0.5
 
 export REFRAME_HOME=$PWD
 echo REFRAME_HOME=$REFRAME_HOME
