@@ -1,4 +1,4 @@
-ml ReFrame/3.11.1
+ml ReFrame/4.0.5
 
 export REFRAME_HOME=$PWD
 echo REFRAME_HOME=$REFRAME_HOME
@@ -9,7 +9,7 @@ export PYTHONPATH=$PYTHONPATH:/usr/lib64/python3.6/site-packages:/usr/lib/python
 
 export REFRAME_SOURCEPATH='/apps/brussel/sources'
 
-export RFM_CONFIG_FILE=$REFRAME_HOME/config/config.py
+export RFM_CONFIG_FILES=$REFRAME_HOME/config/config.py
 export RFM_PREFIX=$VSC_SCRATCH_VO_USER/hpc-reframe-tests
 export RFM_OUTPUT_DIR=$RFM_PREFIX
 export RFM_PERFLOG_DIR=$RFM_PREFIX/perflogs

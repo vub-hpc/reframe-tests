@@ -17,11 +17,11 @@ class CP2KTestBase(rfm.RunOnlyRegressionTest):
     "base class for CP2K tests"
     descr = f'CP2K test {testfile}'
     valid_systems = required
-    valid_prog_environs = ['builtin']
+    valid_prog_environs = ['default']
     executable = 'cp2k.popt'
     executable_opts = ['-i', f'{testfile}.inp']
     time_limit = '20m'
-    variables = {
+    env_vars = {
         'OMP_NUM_THREADS': '1',  # necessary when running with MPI
     }
     exclusive_access = required

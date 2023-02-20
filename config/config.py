@@ -18,7 +18,7 @@ perf_logging_format = 'reframe: ' + '|'.join(
     [
         'username=%(osuser)s',
         'version=%(version)s',
-        f'commit={commit:%Y%m%d.%H%M}',
+        f'commit={commit}',
         'name=%(check_name)s',
         'system=%(check_system)s',
         'partition=%(check_partition)s',
@@ -35,7 +35,7 @@ perf_logging_format = 'reframe: ' + '|'.join(
 )
 
 environs_cpu = [
-    'builtin',
+    'default',
     'foss-2019b',
     'intel-2019b',
     'foss-2020a',
@@ -90,7 +90,7 @@ site_configuration = {
             'descr': 'VUB-HPC hydra cluster',
             'hostnames': ['.*'],
             'modules_system': 'lmod',
-            'variables': [
+            'env_vars': [
                 ['SLURM_CLUSTERS', 'hydra'],
                 ['SLURM_CONF', '/etc/slurm/slurm.conf_hydra'],
                 ['VSC_INSTITUTE_CLUSTER', 'hydra'],
@@ -99,6 +99,9 @@ site_configuration = {
                 {
                     'name': 'skylake-sn',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=skylake,skylake_mpi'],
                     'environs': environs_cpu,
@@ -109,6 +112,9 @@ site_configuration = {
                 {
                     'name': 'skylake-sn-mpi',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=skylake,skylake_mpi'],
                     'environs': environs_cpu,
@@ -119,6 +125,9 @@ site_configuration = {
                 {
                     'name': 'skylake-mn-mpi-ib',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=skylake_mpi'],
                     'environs': environs_cpu,
@@ -129,6 +138,9 @@ site_configuration = {
                 {
                     'name': 'skylake-mn-mpi-eth',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=skylake'],
                     'environs': environs_cpu,
@@ -139,6 +151,9 @@ site_configuration = {
                 {
                     'name': 'broadwell-sn',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=broadwell'],
                     'environs': environs_cpu,
@@ -149,6 +164,9 @@ site_configuration = {
                 {
                     'name': 'broadwell-mpi',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=broadwell'],
                     'environs': environs_cpu,
@@ -159,6 +177,9 @@ site_configuration = {
                 {
                     'name': 'ivybridge-sn',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=ivybridge_mpi'],
                     'environs': environs_cpu,
@@ -169,6 +190,9 @@ site_configuration = {
                 {
                     'name': 'ivybridge-mpi',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=ivybridge_mpi'],
                     'environs': environs_cpu,
@@ -179,6 +203,9 @@ site_configuration = {
                 {
                     'name': 'broadwell-pascal-sn-gpu',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=pascal_gpu'],
                     'environs': environs_cpu + environs_gpu,
@@ -195,6 +222,9 @@ site_configuration = {
                 {
                     'name': 'zen2-ampere-sn-gpu',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=ampere_gpu'],
                     'environs': environs_cpu + environs_gpu,
@@ -211,6 +241,9 @@ site_configuration = {
                 {
                     'name': 'zen2-ampere-mpi',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=ampere_gpu'],
                     'environs': environs_cpu,
@@ -221,6 +254,9 @@ site_configuration = {
                 {
                     'name': 'zen2-ampere-mpi-gpu',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=ampere_gpu'],
                     'environs': environs_cpu + environs_gpu,
@@ -242,7 +278,7 @@ site_configuration = {
             'hostnames': ['.*'],
             'modules_system': 'lmod',
             # 'modules': ['cluster/chimera'],  # does not work for some reason, set envars explicitly instead
-            'variables': [
+            'env_vars': [
                 ['SLURM_CLUSTERS', 'chimera'],
                 ['SLURM_CONF', '/etc/slurm/slurm.conf_chimera'],
                 ['VSC_INSTITUTE_CLUSTER', 'chimera'],
@@ -251,6 +287,9 @@ site_configuration = {
                 {
                     'name': 'haswell-sn',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=haswell_mpi'],
                     'environs': environs_cpu,
@@ -261,6 +300,9 @@ site_configuration = {
                 {
                     'name': 'broadwell-sn',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=broadwell_mpi'],
                     'environs': environs_cpu,
@@ -271,6 +313,9 @@ site_configuration = {
                 {
                     'name': 'haswell-mpi',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=haswell_mpi'],
                     'environs': environs_cpu,
@@ -281,6 +326,9 @@ site_configuration = {
                 {
                     'name': 'broadwell-mpi',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=broadwell_mpi'],
                     'environs': environs_cpu,
@@ -296,7 +344,7 @@ site_configuration = {
             'hostnames': ['.*'],
             'modules_system': 'lmod',
             # 'modules': ['cluster/manticore'],  # does not work for some reason, set envars explicitly instead
-            'variables': [
+            'env_vars': [
                 ['SLURM_CLUSTERS', 'manticore'],
                 ['SLURM_CONF', '/etc/slurm/slurm.conf_manticore'],
                 ['VSC_INSTITUTE_CLUSTER', 'manticore'],
@@ -305,6 +353,9 @@ site_configuration = {
                 {
                     'name': 'skylake-sn',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=skylake_mpi'],
                     'environs': environs_cpu,
@@ -315,6 +366,9 @@ site_configuration = {
                 {
                     'name': 'skylake-mpi',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=skylake_mpi'],
                     'environs': environs_cpu,
@@ -325,6 +379,9 @@ site_configuration = {
                 {
                     'name': 'ivybridge-sn',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=ivybridge'],
                     'environs': environs_cpu,
@@ -335,6 +392,9 @@ site_configuration = {
                 {
                     'name': 'ivybridge-mpi',
                     'scheduler': 'slurm',
+                    'sched_options': {
+                        'use_nodes_option': True,
+                    },
                     'modules': [],
                     'access': ['--partition=ivybridge'],
                     'environs': environs_cpu,
@@ -345,14 +405,8 @@ site_configuration = {
             ],
         },
     ],
-    'schedulers': [
-        {
-            'name': 'slurm',
-            'use_nodes_option': True,  # always add --nodes Slurm option
-        },
-    ],
     'environments': [
-        {'name': 'builtin', 'cc': 'gcc', 'cxx': 'g++', 'ftn': 'gfortran',},
+        {'name': 'default', 'cc': 'gcc', 'cxx': 'g++', 'ftn': 'gfortran',},
         {
             'name': 'foss-2019b',
             'modules': ['foss/2019b', 'Autotools/20180311-GCCcore-8.3.0'],

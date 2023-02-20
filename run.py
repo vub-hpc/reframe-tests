@@ -222,7 +222,7 @@ else:
 if args.valid_prog_environs:
     valid_prog_environs = args.valid_prog_environs.split(',')
 else:
-    valid_prog_environs = selected.get('valid_prog_environs', ['builtin'])
+    valid_prog_environs = selected.get('valid_prog_environs', ['default'])
 
 name = selected.get('name', []) if not name else name
 

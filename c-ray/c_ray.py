@@ -62,8 +62,8 @@ class c_rayTestMC(c_rayTestBase):
     num_cpus_per_task = required
 
     @run_after('init')
-    def set_variables(self):
-        self.variables = {
+    def set_env_vars(self):
+        self.env_vars = {
             'OMP_NUM_THREADS': f'{self.num_cpus_per_task}',
             'OMP_PLACES': 'sockets',
         }
