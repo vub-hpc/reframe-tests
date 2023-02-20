@@ -32,7 +32,7 @@ class BLASTest(rfm.RunOnlyRegressionTest):
     def post_init(self):
         self.descr = f'BLAS-Tester {self.exe} test'
         self.depends_on('BLASBuildTest')
-        self.variables = {
+        self.env_vars = {
             'OMP_NUM_THREADS': f'{self.num_cpus_per_task}',
             'OMP_PLACES': 'sockets',
             'OMP_PROC_BIND': 'close',

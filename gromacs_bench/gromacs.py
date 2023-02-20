@@ -20,7 +20,7 @@ class GMXBenchMEMBase(rfm.RunOnlyRegressionTest):
     """ base clase for BenchMEM test """
     descr = 'GROMACS benchMEM test'
     valid_systems = required
-    valid_prog_environs = ['builtin']
+    valid_prog_environs = ['default']
     prerun_cmds = [
         download_cmd if not os.path.isfile(src_path) else '',
         checksum_cmd + ' && ' + extract_cmd,
@@ -51,7 +51,7 @@ class GMXBenchMEMSingleNode(GMXBenchMEMBase):
     @run_after('init')
     def post_init(self):
         self.executable_opts += ['-nt', f'{self.num_cpus_per_task}']
-        self.variables = {
+        self.env_vars = {
             'OMP_NUM_THREADS': f'{self.num_cpus_per_task}',
         }
 
@@ -63,7 +63,7 @@ class GMXBenchMEMMultiNode(GMXBenchMEMBase):
     num_tasks = required
     num_tasks_per_node = required
     num_cpus_per_task = 1
-    variables = {
+    env_vars = {
         'OMPI_MCA_rmaps_base_mapping_policy': 'socket',
     }
 
@@ -85,7 +85,7 @@ class GMXBenchMEMSingleNodeGPU(GMXBenchMEMBase):
     def post_init(self):
         self.num_tasks_per_node = self.num_tasks
         self.executable_opts += ['-nt', f'{self.num_cpus_per_task}']
-        self.variables = {
+        self.env_vars = {
             'OMP_NUM_THREADS': f'{self.num_cpus_per_task}',
         }
         self.extra_resources = {
