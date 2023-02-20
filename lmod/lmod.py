@@ -71,7 +71,7 @@ class LmodTestConfig(LmodTestBase):
             sn.assert_eq(config['tm_ancient'], 86400, 'User cache valid time(sec)'),
             sn.assert_eq(config['tm_short'], 86400, 'Write cache after (sec)'),
             sn.assert_eq(config['z01_admin'], '/usr/share/lmod/etc/admin.list', 'Admin file'),
-            sn.assert_eq(config['spdr_loads'], 'no', 'Cached loads'),
+            sn.assert_eq(config['spdr_loads'], 'yes', 'Cached loads'),
         ])
 
 
