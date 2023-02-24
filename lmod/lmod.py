@@ -250,9 +250,8 @@ class LmodTestOld(LmodTestBase):
 
     @sanity_function
     def assert_output(self):
-        msg = f"""\
-The module {self.toolchain} is rather old. We recommend a newer version.
-If there is no newer version available, feel free to request one at hpc@vub.be."""
+        msg = f"The module {self.toolchain} is rather old. We recommend a newer version. If there is no newer version available, feel free to request one at hpc@vub.be."  # noqa: E501
+        msg = msg.replace(' ', '\s+')
         return sn.assert_found(msg, self.stderr)
 
 
@@ -265,12 +264,8 @@ class LmodTestVeryOld(LmodTestBase):
 
     @sanity_function
     def assert_output(self):
-        msg = f"""\
-Lmod Warning: The module {self.toolchain} is old. Please use a newer version.
-If there is no newer version available, please request one at hpc@vub.be.
-
-If you don't understand the warning or error, contact the helpdesk at
-hpc@vub.be"""
+        msg = f"Lmod Warning: The module {self.toolchain} is old. Please use a newer version. If there is no newer version available, please request one at hpc@vub.be. If you don't understand the warning or error, contact the helpdesk at hpc@vub.be"  # noqa: E501
+        msg = msg.replace(' ', '\s+')
         return sn.assert_found(msg, self.stderr)
 
 
