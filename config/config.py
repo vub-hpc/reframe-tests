@@ -57,7 +57,7 @@ environs_gpu = [
 
 # workaround for old modules which emit a warning upon load and non-zero exit code
 prepare_cmds = []
-if os.getenv('REFRAME_QUIET_MODULE_LOAD'):
+if os.getenv('REFRAME_QUIET_MODULE_LOAD', '').lower() in ['yes', '1', 'true']:
     prepare_cmds = [
         'shopt -s expand_aliases',
         "alias module='module -q'",

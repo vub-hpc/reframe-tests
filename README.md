@@ -9,17 +9,15 @@ Running weekly tests for production
 
 ```
 # login to Hydra as vsc10001
-cd ~/reframe-tests
-./run_weekly.sh
+~/reframe-tests/run_weekly.sh
 ```
 
 Running tests in your account
 -----------------------------
 
 ```
-git clone git@ssh.dev.azure.com:v3/VUB-ICT/Directie%20ICT/HPC_reframe-tests
-cd HPC_Reframe-tests
-./run.sh <options>
+git clone https://github.com/vub-hpc/reframe-tests.git
+reframe-tests/run.sh <options>
 ```
 
 Examples
@@ -27,15 +25,15 @@ Examples
 
 ```
 # all Lmod tests as jobs in compute nodes
-./run.sh -c lmod
+reframe-tests/run.sh -c lmod
 # Lmod test LmodTestJavaMemory in the local node
-./run.sh -c lmod -n LmodTestJavaMemory --system local
+reframe-tests/run.sh -c lmod -n LmodTestJavaMemory --system local
 # OSU tests compiled with foss/2022a toolchain
-./run.sh -c osu --valid_prog_environs foss-2022a
+reframe-tests/run.sh -c osu --valid_prog_environs foss-2022a
 # OSU tests in ReFrame partition skylake-mn-mpi-ib
-./run.sh -c osu --partitions skylake-mn-mpi-ib
+reframe-tests/run.sh -c osu --partitions skylake-mn-mpi-ib
 # GROMACS GPU test in ReFrame partition zen2-ampere-sn-gpu
-./run.sh -c gromacs_bench --partition zen2-ampere-sn-gpu -n GMXBenchMEMSingleNodeGPU
+reframe-tests/run.sh -c gromacs_bench --partition zen2-ampere-sn-gpu -n GMXBenchMEMSingleNodeGPU
 ```
 
 Location of ouput and log files
@@ -47,3 +45,14 @@ All output is written to `VSC_SCRATCH_VO_USER/hpc-reframe-tests/`
 * `perflogs/`: performance logs
 * `stage/`: build and run scripts, (job) output, and (job) error files
 
+Using old modules
+-----------------
+
+In VUB-HPC clusters, Lmod emits a warning message (and returns non-zero exit
+code) when loading an old module, which breaks the ReFrame tests. To run
+suppress the warning and non-zero exit code for old modules, run the tests as
+follows:
+
+```
+REFRAME_QUIET_MODULE_LOAD=yes reframe-tests/run.sh <options>
+```
