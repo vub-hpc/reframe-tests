@@ -55,6 +55,16 @@ environs_gpu = [
     'fosscuda-2020a',
 ]
 
+# workaround for old modules which emit a warning upon load and non-zero exit code
+prepare_cmds = []
+if os.getenv('REFRAME_QUIET_MODULE_LOAD', '').lower() in ['yes', '1', 'true']:
+    prepare_cmds = [
+        'shopt -s expand_aliases',
+        "alias module='module -q'",
+    ]
+
+sched_options = {'use_nodes_option': True}
+
 site_configuration = {
     'systems': [
         {
@@ -69,6 +79,7 @@ site_configuration = {
                     'modules': [],
                     'access': [],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'tests in local node(s) (no job)',
                     'max_jobs': 1,
                     'launcher': 'local',
@@ -79,6 +90,7 @@ site_configuration = {
                     'modules': [],
                     'access': [],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'MPI tests in local node(s) (no job)',
                     'max_jobs': 1,
                     'launcher': 'srun',
@@ -99,12 +111,11 @@ site_configuration = {
                 {
                     'name': 'skylake-sn',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=skylake,skylake_mpi'],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'single-node jobs in Skylake nodes',
                     'max_jobs': 10,
                     'launcher': 'local',
@@ -112,12 +123,11 @@ site_configuration = {
                 {
                     'name': 'skylake-sn-mpi',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=skylake,skylake_mpi'],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'single-node MPI jobs in Skylake nodes',
                     'max_jobs': 10,
                     'launcher': 'srun',
@@ -125,12 +135,11 @@ site_configuration = {
                 {
                     'name': 'skylake-mn-mpi-ib',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=skylake_mpi'],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'multi-node MPI jobs in Skylake nodes with infiniband',
                     'max_jobs': 1,
                     'launcher': 'srun',
@@ -138,12 +147,11 @@ site_configuration = {
                 {
                     'name': 'skylake-mn-mpi-eth',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=skylake'],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'multi-node MPI jobs in Skylake nodes without infiniband',
                     'max_jobs': 1,
                     'launcher': 'srun',
@@ -151,12 +159,11 @@ site_configuration = {
                 {
                     'name': 'broadwell-sn',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=broadwell'],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'single-node jobs in Broadwell nodes',
                     'max_jobs': 10,
                     'launcher': 'local',
@@ -164,12 +171,11 @@ site_configuration = {
                 {
                     'name': 'broadwell-mpi',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=broadwell'],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'MPI jobs in Broadwell nodes',
                     'max_jobs': 10,
                     'launcher': 'srun',
@@ -177,12 +183,11 @@ site_configuration = {
                 {
                     'name': 'ivybridge-sn',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=ivybridge_mpi'],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'single-node jobs in Ivybridge nodes',
                     'max_jobs': 10,
                     'launcher': 'local',
@@ -190,12 +195,11 @@ site_configuration = {
                 {
                     'name': 'ivybridge-mpi',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=ivybridge_mpi'],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'MPI jobs in Ivybrdige nodes',
                     'max_jobs': 1,
                     'launcher': 'srun',
@@ -203,18 +207,17 @@ site_configuration = {
                 {
                     'name': 'broadwell-pascal-sn-gpu',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=pascal_gpu'],
                     'environs': environs_cpu + environs_gpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'single-node jobs in Broadwell nodes with Pascal P100 GPUs',
                     'max_jobs': 1,
                     'resources': [
                         {
                             'name': 'gpu',
-                            'options': ['--gres=gpu:{num_gpus_per_node}'],
+                            'options': ['--gpus-per-node={num_gpus_per_node}'],
                         },
                     ],
                     'launcher': 'local',
@@ -222,18 +225,17 @@ site_configuration = {
                 {
                     'name': 'zen2-ampere-sn-gpu',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=ampere_gpu'],
                     'environs': environs_cpu + environs_gpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'single-node jobs in Zen2 nodes with Ampere A100 GPUs',
                     'max_jobs': 1,
                     'resources': [
                         {
                             'name': 'gpu',
-                            'options': ['--gres=gpu:{num_gpus_per_node}'],
+                            'options': ['--gpus-per-node={num_gpus_per_node}'],
                         },
                     ],
                     'launcher': 'local',
@@ -241,12 +243,11 @@ site_configuration = {
                 {
                     'name': 'zen2-ampere-mpi',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=ampere_gpu'],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'MPI jobs in Zen2 nodes',
                     'max_jobs': 1,
                     'launcher': 'srun',
@@ -254,18 +255,17 @@ site_configuration = {
                 {
                     'name': 'zen2-ampere-mpi-gpu',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=ampere_gpu'],
                     'environs': environs_cpu + environs_gpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'MPI jobs in Zen2 nodes with Ampere A100 GPUs',
                     'max_jobs': 1,
                     'resources': [
                         {
                             'name': 'gpu',
-                            'options': ['--gres=gpu:{num_gpus_per_node}'],
+                            'options': ['--gpus-per-node={num_gpus_per_node}'],
                         },
                     ],
                     'launcher': 'srun',
@@ -287,12 +287,11 @@ site_configuration = {
                 {
                     'name': 'haswell-sn',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=haswell_mpi'],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'single-node jobs in Haswell nodes',
                     'max_jobs': 1,
                     'launcher': 'local',
@@ -300,12 +299,11 @@ site_configuration = {
                 {
                     'name': 'broadwell-sn',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=broadwell_mpi'],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'single-node jobs in Broadwell nodes',
                     'max_jobs': 1,
                     'launcher': 'local',
@@ -313,12 +311,11 @@ site_configuration = {
                 {
                     'name': 'haswell-mpi',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=haswell_mpi'],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'MPI jobs in Haswell nodes',
                     'max_jobs': 1,
                     'launcher': 'srun',
@@ -326,12 +323,11 @@ site_configuration = {
                 {
                     'name': 'broadwell-mpi',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=broadwell_mpi'],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'MPI jobs in Broadwell nodes',
                     'max_jobs': 1,
                     'launcher': 'srun',
@@ -353,12 +349,11 @@ site_configuration = {
                 {
                     'name': 'skylake-sn',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=skylake_mpi'],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'single-node jobs in Skylake nodes',
                     'max_jobs': 10,
                     'launcher': 'local',
@@ -366,12 +361,11 @@ site_configuration = {
                 {
                     'name': 'skylake-mpi',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=skylake_mpi'],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'MPI jobs in Skylake nodes',
                     'max_jobs': 1,
                     'launcher': 'srun',
@@ -379,12 +373,11 @@ site_configuration = {
                 {
                     'name': 'ivybridge-sn',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=ivybridge'],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'single-node jobs in Ivybridge nodes',
                     'max_jobs': 10,
                     'launcher': 'local',
@@ -392,12 +385,11 @@ site_configuration = {
                 {
                     'name': 'ivybridge-mpi',
                     'scheduler': 'slurm',
-                    'sched_options': {
-                        'use_nodes_option': True,
-                    },
+                    'sched_options': sched_options,
                     'modules': [],
                     'access': ['--partition=ivybridge'],
                     'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
                     'descr': 'MPI jobs in Ivybridge nodes',
                     'max_jobs': 1,
                     'launcher': 'srun',
