@@ -14,25 +14,27 @@ try:
 except Exception:
     commit = ''
 
-perf_logging_format = 'reframe: ' + '|'.join(
-    [
-        'username=%(osuser)s',
-        'version=%(version)s',
-        f'commit={commit}',
-        'name=%(check_name)s',
-        'system=%(check_system)s',
-        'partition=%(check_partition)s',
-        'environ=%(check_environ)s',
-        'num_tasks=%(check_num_tasks)s',
-        'num_cpus_per_task=%(check_num_cpus_per_task)s',
-        'num_tasks_per_node=%(check_num_tasks_per_node)s',
-        'modules=%(check_modules)s',
-        'jobid=%(check_jobid)s',
-        'perf_var=%(check_perf_var)s',
-        'perf_value=%(check_perf_value)s',
-        'unit=%(check_perf_unit)s',
-    ]
-)
+perf_logging_format = 'reframe: ' + '|'.join([
+    'username=%(osuser)s',
+    'version=%(version)s',
+    f'commit={commit}',
+    'name=%(check_name)s',
+    'system=%(check_system)s',
+    'partition=%(check_partition)s',
+    'environ=%(check_environ)s',
+    'num_tasks=%(check_num_tasks)s',
+    'num_cpus_per_task=%(check_num_cpus_per_task)s',
+    'num_tasks_per_node=%(check_num_tasks_per_node)s',
+    'modules=%(check_modules)s',
+    'jobid=%(check_jobid)s',
+    '%(check_perfvalues)s',
+])
+
+format_perfvars = '|'.join([
+    'perf_var=%(check_perf_var)s',
+    'perf_value=%(check_perf_value)s',
+    'unit=%(check_perf_unit)s',
+]) + '|'
 
 environs_cpu = [
     'default',
@@ -398,7 +400,7 @@ site_configuration = {
         },
     ],
     'environments': [
-        {'name': 'default', 'cc': 'gcc', 'cxx': 'g++', 'ftn': 'gfortran',},
+        {'name': 'default', 'cc': 'gcc', 'cxx': 'g++', 'ftn': 'gfortran'},
         {
             'name': 'foss-2019b',
             'modules': ['foss/2019b', 'Autotools/20180311-GCCcore-8.3.0'],
@@ -531,6 +533,7 @@ site_configuration = {
                     'prefix': '%(check_system)s/%(check_partition)s',
                     'level': 'info',
                     'format': '%(check_job_completion_time)s ' + perf_logging_format,
+                    'format_perfvars': format_perfvars,
                     'append': True,
                 },
                 {
@@ -538,6 +541,7 @@ site_configuration = {
                     'address': '/dev/log',
                     'level': syslog_level,
                     'format': perf_logging_format,
+                    'format_perfvars': format_perfvars,
                     'append': True,
                 },
             ],
