@@ -153,7 +153,7 @@ tests = [
         'valid_prog_environs': ['foss-2021a'],
         'valid_systems': {
             'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:skylake-mn-mpi-eth'],
-            'local': ['local:local-mpi']
+            'local': ['local:local-mpi'],
         },
         'setvar_extra': {
             'iorBuildTest.num_cpus_per_task': '4',
@@ -164,7 +164,7 @@ tests = [
         },
         'extra': {
             'exec-policy': 'serial',
-            'job-option': 'mem-per-cpu=4G'
+            'job-option': 'mem-per-cpu=4G',
         },
     },
     {
@@ -174,6 +174,9 @@ tests = [
             'manticore': ['manticore:skylake-sn'],
             'chimera': ['chimera:broadwell-sn'],
             'local': ['local:local'],
+        },
+        'extra': {
+            'job-option': 'mem-per-cpu=1G',
         },
     },
     {
@@ -195,6 +198,18 @@ tests = [
         'extra': {
             'exec-policy': 'serial',
             'tag': 'prod_small',
+        },
+    },
+    {
+        'checkpath': 'slurm',
+        'valid_systems': {
+            'hydra': ['hydra:skylake-sn'],
+            'manticore': ['manticore:skylake-sn'],
+            'chimera': ['chimera:broadwell-sn'],
+            'local': ['local:local'],
+        },
+        'extra': {
+            'job-option': 'mem-per-cpu=1G',
         },
     },
 ]
