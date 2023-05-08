@@ -212,11 +212,22 @@ tests = [
             'job-option': 'mem-per-cpu=1G',
         },
     },
+    {
+        'checkpath': 'slurm_gpu',
+        'name': ['GPUBinding'],
+        'valid_systems': {
+            'hydra': ['hydra:broadwell-pascal-sn-gpu'],
+            'local': ['local:local'],
+        },
+        'extra': {
+            'job-option': 'mem-per-cpu=1G',
+        },
+    },
 ]
 
 selected_tests = []
 for test in tests:
-    if checkpath.startswith(test['checkpath']):
+    if checkpath == test['checkpath'] or checkpath.startswith(test['checkpath'] + os.sep):
         if not name or not test.get('name') or name == test.get('name'):
             selected_tests.append(test)
 

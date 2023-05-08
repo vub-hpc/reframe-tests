@@ -37,7 +37,7 @@ class SlurmTestBase(rfm.RunOnlyRegressionTest):
 
 
 @rfm.simple_test
-class SbatchCleanEnvTest(SlurmTestBase):
+class SbatchCleanEnv(SlurmTestBase):
     descr += "sbatch starts in a clean environment"
     exe = 'print(os.getenv("TEST_ENVAR_OUTSIDE") is None)'
     executable = f"python3 -c 'import os;{exe}'"
@@ -51,7 +51,7 @@ class SbatchCleanEnvTest(SlurmTestBase):
 
 
 @rfm.simple_test
-class SbatchSrunCopyEnvTest(SlurmTestBase):
+class SbatchSrunCopyEnv(SlurmTestBase):
     descr += "srun copies the sbatch job environment"
     timestamp = time.time()
     prerun_cmds = [f'export TEST_ENVAR_INSIDE={timestamp}']
@@ -67,13 +67,28 @@ class SbatchSrunCopyEnvTest(SlurmTestBase):
 
 
 @rfm.simple_test
-class SbatchEnforceBindingTest(SlurmTestBase):
+class SbatchEnforceBinding(SlurmTestBase):
     descr += "--gres-flags=enforce-binding is set by default"
-    executable = "scontrol show job $SLURM_JOB_ID"
+    executable = """
+scontrol show job $SLURM_JOB_ID
+sbatch --wrap=hostname --ntasks-per-node=13 --gpus-per-node=1 --partition=pascal_gpu
+"""
 
     @sanity_function
     def assert_forcebinding(self):
-        return sn.assert_found(r'^\s*GresEnforceBind=Yes$', self.stdout, self.descr)
+        return sn.all([
+            sn.assert_found(r'^\s*GresEnforceBind=Yes$', self.stdout, self.descr),
+            sn.assert_found(
+                r'sbatch: error: Batch job submission failed: Requested node configuration is not available',
+                self.stderr,
+                self.descr + ": requesting more cpus than availabe per GPU shows error"
+            ),
+            sn.assert_not_found(
+                r"^Submitted batch job",
+                self.stdout,
+                self.descr + "requesting more cpus than availabe per GPU fails"
+            ),
+        ])
 
 
 @rfm.simple_test
@@ -134,6 +149,7 @@ class SbatchSrunAffinity(SbatchAffinity):
 @rfm.simple_test
 class TaskFarmingParallel(SbatchSrunAffinity):
     descr += "task farming with GNU Parallel: "
+    num_tasks_per_node = 1  # should work even if each task runs in a different node
     modules = ['parallel']
     affinity_script = affinity_script.replace('"', r'\"')
     executable = f"seq 1 2 | parallel -N0 -j $SLURM_NTASKS \"srun -n 1 -N 1 --exact python3 -c '{affinity_script}'\""
