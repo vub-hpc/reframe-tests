@@ -261,11 +261,14 @@ class WarningMultiGPU(SlurmTestBase):
 
 @rfm.simple_test
 class NonGPUInGPUPartition(SlurmTestBase):
-    # this test will fail for users with account bvo00005
     descr += ": non-GPU job in GPU partition"
     tags.add('local')
     partition = 'pascal_gpu'
     executable = tempjob.format(f'--partition={partition}')
+
+    @run_after('init')
+    def post_init(self):
+        self.skip_if(os.getenv('VSC_VO', '') == 'bvo00005', self.descr + ': skipping test for bvo00005 accounts')
 
     @sanity_function
     def assert_forcebinding(self):
