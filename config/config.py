@@ -27,14 +27,10 @@ perf_logging_format = 'reframe: ' + '|'.join([
     'num_tasks_per_node=%(check_num_tasks_per_node)s',
     'modules=%(check_modules)s',
     'jobid=%(check_jobid)s',
-    '%(check_perfvalues)s',
-])
-
-format_perfvars = '|'.join([
     'perf_var=%(check_perf_var)s',
     'perf_value=%(check_perf_value)s',
     'unit=%(check_perf_unit)s',
-]) + '|'
+])
 
 environs_cpu = [
     'default',
@@ -502,6 +498,7 @@ site_configuration = {
     ],
     'logging': [
         {
+            'perflog_compat': True,
             'level': 'debug',
             'handlers': [
                 {
@@ -533,7 +530,6 @@ site_configuration = {
                     'prefix': '%(check_system)s/%(check_partition)s',
                     'level': 'info',
                     'format': '%(check_job_completion_time)s ' + perf_logging_format,
-                    'format_perfvars': format_perfvars,
                     'append': True,
                 },
                 {
@@ -541,7 +537,6 @@ site_configuration = {
                     'address': '/dev/log',
                     'level': syslog_level,
                     'format': perf_logging_format,
-                    'format_perfvars': format_perfvars,
                     'append': True,
                 },
             ],
