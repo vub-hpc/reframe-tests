@@ -43,11 +43,11 @@ name = args.name
 tests = [
     {
         'checkpath': 'blas-tester',
-        'valid_prog_environs': ['foss-2021a', 'intel-2021a'],
+        'valid_prog_environs': ['foss-2023a', 'intel-2023a'],
         'valid_systems': {
-            'hydra': ['hydra:skylake-sn', 'hydra:broadwell-sn', 'hydra:ivybridge-sn'],
+            'hydra': ['hydra:skylake-sn', 'hydra:zen4-sn'],
             'chimera': ['chimera:broadwell-sn', 'chimera:haswell-sn'],
-            'manticore': ['manticore:skylake-sn', 'manticore:ivybridge-sn'],
+            'manticore': ['manticore:zen3-sn'],
             'local': ['local:local'],
         },
         'setvar_extra': {
@@ -62,13 +62,13 @@ tests = [
         'checkpath': 'cp2k_tests',
         'name': ['CP2KTestSingleNode'],
         'valid_systems': {
-            'hydra': ['hydra:skylake-sn-mpi', 'hydra:broadwell-mpi', 'hydra:ivybridge-mpi'],
+            'hydra': ['hydra:skylake-sn-mpi', 'hydra:zen4-mpi'],
             'chimera': ['chimera:broadwell-mpi', 'chimera:haswell-mpi'],
-            'manticore': ['manticore:skylake-mpi', 'manticore:ivybridge-mpi'],
+            'manticore': ['manticore:zen3-mpi'],
             'local': ['local:local'],
         },
         'setvar_extra': {
-            'modules': 'CP2K/7.1-intel-2020a',
+            'modules': 'CP2K/2023.1-foss-2023a',
             'num_tasks': '4',
             'num_tasks_per_node': '4',
             'exclusive_access': 'false',
@@ -81,12 +81,12 @@ tests = [
         'checkpath': 'cp2k_tests',
         'name': ['CP2KTestMultiNode'],
         'valid_systems': {
-            'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:ivybridge-mpi'],
+            'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:zen4-mpi'],
             'chimera': ['chimera:broadwell-mpi', 'chimera:haswell-mpi'],
             'local': ['local:local-mpi'],
         },
         'setvar_extra': {
-            'modules': 'CP2K/7.1-intel-2020a',
+            'modules': 'CP2K/2023.1-foss-2023a',
             'num_tasks': '4',
             'num_tasks_per_node': '1',
             'exclusive_access': 'false',
@@ -99,12 +99,12 @@ tests = [
         'checkpath': 'gromacs_bench',
         'name': ['GMXBenchMEMMultiNode'],
         'valid_systems': {
-            'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:ivybridge-mpi'],
+            'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:zen4-mpi'],
             'chimera': ['chimera:broadwell-mpi', 'chimera:haswell-mpi'],
             'local': ['local:local-mpi'],
         },
         'setvar_extra': {
-            'modules': 'GROMACS/2021.3-foss-2021a',
+            'modules': 'GROMACS/2023.3-foss-2023a',
             'num_tasks': '4',
             'num_tasks_per_node': '1',
             'exclusive_access': 'false',
@@ -117,13 +117,13 @@ tests = [
         'checkpath': 'gromacs_bench',
         'name': ['GMXBenchMEMSingleNode'],
         'valid_systems': {
-            'hydra': ['hydra:skylake-sn', 'hydra:broadwell-sn', 'hydra:ivybridge-sn'],
+            'hydra': ['hydra:skylake-sn', 'hydra:zen4-sn'],
             'chimera': ['chimera:broadwell-sn', 'chimera:haswell-sn'],
-            'manticore': ['manticore:skylake-sn', 'manticore-ivybridge-sn'],
+            'manticore': ['manticore:zen3-sn'],
             'local': ['local:local'],
         },
         'setvar_extra': {
-            'modules': 'GROMACS/2021.3-foss-2021a',
+            'modules': 'GROMACS/2023.3-foss-2023a',
             'num_cpus_per_task': '4',
             'exclusive_access': 'false',
         },
@@ -139,7 +139,7 @@ tests = [
             'local': ['local:local'],
         },
         'setvar_extra': {
-            'modules': 'GROMACS/2021.3-foss-2021a-CUDA-11.3.1',
+            'modules': 'GROMACS/2023.3-foss-2023a-CUDA-12.1.1-PLUMED-2.9.0',
             'num_cpus_per_task': '4',
             'num_gpus_per_node': '1',
             'exclusive_access': 'false',
@@ -150,7 +150,7 @@ tests = [
     },
     {
         'checkpath': 'ior',
-        'valid_prog_environs': ['foss-2021a'],
+        'valid_prog_environs': ['foss-2023a'],
         'valid_systems': {
             'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:skylake-mn-mpi-eth'],
             'local': ['local:local-mpi'],
@@ -181,10 +181,10 @@ tests = [
     },
     {
         'checkpath': 'osu',
-        'valid_prog_environs': ['foss-2021a', 'intel-2021a'],
+        'valid_prog_environs': ['foss-2023a', 'intel-2023a'],
         'valid_systems': {
-            'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:ivybridge-mpi'],
-            'manticore': ['manticore:skylake-mpi', 'manticore-ivybridge-mpi'],
+            'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:zen4-mpi'],
+            'manticore': ['manticore:zen3-mpi'],
             'chimera': ['chimera:broadwell-mpi', 'chimera:haswell-mpi'],
             'local': ['local:local-mpi'],
         },
@@ -253,7 +253,7 @@ else:
 name = selected.get('name', []) if not name else name
 
 cmd = [
-    'reframe --run',
+    'reframe --run --performance-report',
     f'--checkpath {checkpath}',
     ' '.join([f'--name {x}' for x in name]),
     f'--system {system}',
