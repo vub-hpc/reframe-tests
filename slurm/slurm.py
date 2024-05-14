@@ -127,7 +127,8 @@ class SbatchAffinity(SlurmTestBase):
 @rfm.simple_test
 class SbatchSrunAffinity(SbatchAffinity):
     descr += ": srun affinity"
-    executable = 'srun ' + executable
+    # set --cpus-per-task for Slurm versions >= 22.05 < 23.11 to get the same task binding across all Slurm versions
+    executable = f'srun --cpus-per-task=$SLURM_CPUS_PER_TASK {executable}'
 
     @sanity_function
     def assert_affinity(self):
@@ -159,7 +160,9 @@ class TaskFarmingParallel(SbatchSrunAffinity):
     num_tasks_per_node = 1  # should work even if each task runs in a different node
     modules = ['parallel']
     affinity_script = affinity_script.replace('"', r'\"')
-    executable = f"seq 1 2 | parallel -N0 -j $SLURM_NTASKS \"srun -n 1 -N 1 --exact python3 -c '{affinity_script}'\""
+    # set --cpus-per-task for Slurm versions >= 22.05 < 23.11 to get the same task binding across all Slurm versions
+    srun_options = '-n 1 -N 1 --exact --cpus-per-task=$SLURM_CPUS_PER_TASK'
+    executable = f"seq 1 2 | parallel -N0 -j $SLURM_NTASKS \"srun {srun_options} python3 -c '{affinity_script}'\""
 
 
 @rfm.simple_test
@@ -178,7 +181,7 @@ cat <<EOF >partitions.json
 {
     "singlenode": "$(getpartitions '-n 10')",
     "multinode": "$(getpartitions '-n 2 -N 2')",
-    "manycores": "$(getpartitions '-n 41')",
+    "manycores": "$(getpartitions '-n 65')",
     "gpunode": "$(getpartitions '--gpus-per-node=1')"
 }
 EOF
@@ -192,17 +195,17 @@ EOF
         return sn.all([
             sn.assert_not_found(".", self.stderr, self.descr + ': no error messages'),
             sn.assert_eq(
-                {'skylake', 'broadwell', 'skylake_mpi', 'ivybridge_mpi'},
+                {'skylake', 'broadwell', 'skylake_mpi', 'zen4'},
                 set(partitions['singlenode'].split(',')),
                 self.descr + ': singlenode partitions expected: {0}, found: {1}'
             ),
             sn.assert_eq(
-                {'skylake_mpi', 'ivybridge_mpi'},
+                {'skylake_mpi'},
                 set(partitions['multinode'].split(',')),
                 self.descr + ': multinode partitions expected: {0}, found: {1}'
             ),
             sn.assert_eq(
-                {'skylake_mpi', 'ivybridge_mpi'},
+                {'skylake_mpi'},
                 set(partitions['manycores'].split(',')),
                 self.descr + ': manycores partitions expected: {0}, found: {1}'
             ),
@@ -215,35 +218,8 @@ EOF
 
 
 @rfm.simple_test
-class WarningGPU(SlurmTestBase):
-    descr += ": warning for gpu options"
-    tags.add('local')
-    executable = tempjob.format('--gpus=1') + tempjob.format('-n 1 --gpus-per-task=1')
-
-    @sanity_function
-    def assert_warning(self):
-        return sn.all([
-            sn.assert_found(
-                r'WARNING:\S\[0m GPU option \S\[1;31m--gpus\S\[0m is not recommended for performance',
-                self.stderr,
-                self.descr + ': --gpus'
-            ),
-            sn.assert_found(
-                r'WARNING:\S\[0m GPU option \S\[1;31m--gpus-per-task\S\[0m is not recommended for performance',
-                self.stderr,
-                self.descr + ': --gpus-per-task'
-            ),
-            sn.assert_eq(
-                sn.count(sn.extractall(r'^job submitted: (?P<jobid>\S+)', self.stdout, 'jobid')),
-                2,
-                self.descr + ": 2 jobs submitted successfully"
-            )
-        ])
-
-
-@rfm.simple_test
 class WarningMultiGPU(SlurmTestBase):
-    descr += ": warning multi-GPU jobs without --ntasks-per-gpu"
+    descr += ": warning multi-GPU jobs without --ntasks-per-node"
     tags.add('local')
     executable = tempjob.format('--gpus-per-node=2')
 
@@ -251,7 +227,7 @@ class WarningMultiGPU(SlurmTestBase):
     def assert_warning(self):
         return sn.all([
             sn.assert_found(
-                r'Please use \S\[1;32m--ntasks-per-gpu\S\[0m and \S\[1;32m--gpus-per-node',
+                r'Please use .*--ntasks-per-node.* and .*--gpus-per-node',
                 self.stderr,
                 self.descr
             ),
