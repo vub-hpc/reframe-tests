@@ -18,18 +18,19 @@ mem_java = os.environ['JAVA_TOOL_OPTIONS'].replace('-Xmx', '')
 print(int(int(mem_avail) * 0.8) == int(mem_java))
 """
 
+OLDEST_TCGEN = 2022
+
 
 def calc_tcgen(months):
-    "calculate the toolchain generation for a date corresponding to now + months"
+    "calculate the toolchain generation for a date corresponding to now - months"
     curtimestamp = datetime.now().timestamp()
-    newtimestamp = curtimestamp + months * 2629743  # 1 month = 2629743 seconds, as defined in SitePackage.lua
+    newtimestamp = curtimestamp - months * 2629743  # 1 month = 2629743 seconds, as defined in SitePackage.lua
     newdate = date.fromtimestamp(newtimestamp)
-    suffix = 'a' if newdate.month < 7 else 'b'
-    return f'{newdate.year}{suffix}'
+    return f'{newdate.year}a'
 
 
 class LmodTestBase(rfm.RunOnlyRegressionTest):
-    descr = "test Lmod: "
+    descr = "test Lmod"
     valid_systems = required
     valid_prog_environs = required
     time_limit = '10m'
@@ -40,7 +41,7 @@ class LmodTestBase(rfm.RunOnlyRegressionTest):
 
 @rfm.simple_test
 class LmodTestConfig(LmodTestBase):
-    descr += "configuration"
+    descr += ": configuration"
     executable = ' && '.join([
         'module --config-json 2>config.json',
         'echo $VSC_INSTITUTE_CLUSTER-$VSC_ARCH_LOCAL$VSC_ARCH_SUFFIX',
@@ -49,6 +50,7 @@ class LmodTestConfig(LmodTestBase):
     @sanity_function
     def assert_config(self):
         config = json.load(open('config.json', 'r'))['configT']
+        configroot = '/etc/lmod'
         return sn.all([
             sn.assert_found(config['sysName'], self.stdout, 'System name'),
             sn.assert_eq(config['siteName'], 'VUB_HPC', 'Site name'),
@@ -62,22 +64,22 @@ class LmodTestConfig(LmodTestBase):
             sn.assert_eq(config['expMCmd'], 'yes', 'Export the module command'),
             sn.assert_eq(config['extendDflt'], 'no', 'Allow extended default'),
             sn.assert_eq(config['lang'], 'en', 'Language used for err/msg/warn'),
-            sn.assert_eq(config['lang_site'], '/usr/share/lmod/etc/lang.lua', 'Site message file'),
+            sn.assert_eq(config['lang_site'], f'{configroot}/lang.lua', 'Site message file'),
             sn.assert_eq(config['ld_lib_path'], '<empty>', 'LD_LIBRARY_PATH at config time'),
             sn.assert_eq(config['ld_preload'], '<empty>', 'LD_PRELOAD at config time'),
             sn.assert_eq(config['pin_v'], 'yes', 'Pin Versions in restore'),
             sn.assert_eq(config['redirect'], 'yes', 'Redirect to stdout'),
-            sn.assert_eq(config['sitePkg'], '/usr/share/lmod/lmod/libexec/SitePackage.lua', 'Site Pkg location'),
+            sn.assert_eq(config['sitePkg'], f'{configroot}/SitePackage.lua', 'Site Pkg location'),
             sn.assert_eq(config['tm_ancient'], 86400, 'User cache valid time(sec)'),
             sn.assert_eq(config['tm_short'], 86400, 'Write cache after (sec)'),
-            sn.assert_eq(config['z01_admin'], '/usr/share/lmod/etc/admin.list', 'Admin file'),
+            sn.assert_eq(config['z01_admin'], f'{configroot}/admin.list', 'Admin file'),
             sn.assert_eq(config['spdr_loads'], 'yes', 'Cached loads'),
         ])
 
 
 @rfm.simple_test
 class LmodTestModulepath(LmodTestBase):
-    descr += "check the MODULEPATH environment variable"
+    descr += ": check the MODULEPATH environment variable"
     executable = ''
 
     @sanity_function
@@ -92,14 +94,14 @@ class LmodTestModulepath(LmodTestBase):
 
 @rfm.simple_test
 class LmodTestAvail(LmodTestBase):
-    descr += "show available modules"
+    descr += ": show available modules"
     executable = 'time -p module av'
 
     @sanity_function
     def assert_output(self):
         realtime = sn.extractsingle(r'^real (\S+)$', self.stderr, 1, float)
         return sn.all([
-            sn.assert_found(rf' foss/{calc_tcgen(-12)}', self.stdout, f'foss/{calc_tcgen(-12)}'),
+            sn.assert_found(rf' foss/{calc_tcgen(12)}', self.stdout, f'foss/{calc_tcgen(12)}'),
             sn.assert_found(r' Python/', self.stdout, 'Python'),
             sn.assert_found(r' R/', self.stdout, 'R'),
             sn.assert_found(
@@ -113,20 +115,20 @@ class LmodTestAvail(LmodTestBase):
 
 @rfm.simple_test
 class LmodTestSpider(LmodTestBase):
-    descr += "show available versions of a module"
+    descr += ": show available versions of a module"
     executable = 'module --terse spider foss/'
 
     @sanity_function
     def assert_output(self):
         return sn.all([
-            sn.assert_found(rf'^foss/{calc_tcgen(-12)}$', self.stdout, f'foss/{calc_tcgen(-12)}'),
-            sn.assert_found(rf'^foss/{calc_tcgen(-18)}$', self.stdout, f'foss/{calc_tcgen(-18)}'),
+            sn.assert_found(rf'^foss/{calc_tcgen(12)}$', self.stdout, f'foss/{calc_tcgen(12)}'),
+            sn.assert_found(rf'^foss/{calc_tcgen(24)}$', self.stdout, f'foss/{calc_tcgen(24)}'),
         ])
 
 
 class LmodTestLoad(LmodTestBase):
-    descr += "load a module"
-    toolchain = f'foss/{calc_tcgen(-42)}'
+    descr += ": load a module"
+    toolchain = f'foss/{calc_tcgen(24)}'
     check_commands = [
         'command -v gcc',
         'command -v mpirun',
@@ -167,8 +169,8 @@ class LmodTestLoadml(LmodTestLoad):
 
 @rfm.simple_test
 class LmodTestPurge(LmodTestBase):
-    descr += "purge all modules"
-    toolchain = f'foss/{calc_tcgen(-12)}'
+    descr += ": purge all modules"
+    toolchain = f'foss/{calc_tcgen(12)}'
     executable = f'module load {toolchain}; module purge; module list'
     # need to purge first because the ReFrame module is still loaded
     prerun_cmds = [
@@ -188,15 +190,17 @@ class LmodTestPurge(LmodTestBase):
 
 @rfm.simple_test
 class LmodTestUnload(LmodTestBase):
-    descr += "unload a module"
-    toolchain = f'foss/{calc_tcgen(-12)}'
-    module_unload = 'FFTW'
+    descr += ": unload a module"
+    toolchain = f'foss/{calc_tcgen(12)}'
+    module_unload = 'FFTW/'
     executable = f'module load {toolchain}; module unload {module_unload}; module --terse list'
 
     @sanity_function
     def assert_output(self):
         return sn.all([
-            sn.assert_not_found(r'.', self.stderr, 'no errors'),
+            sn.assert_found(
+                r'dependent module\(s\) are not currently loaded', self.stderr, 'dependent modules not loaded'),
+            sn.assert_found(rf'^{self.module_unload}', self.stderr, 'module unloaded'),
             sn.assert_found(rf'^{self.toolchain}$', self.stdout, self.toolchain),
             sn.assert_not_found(rf'^{self.module_unload}$', self.stdout, f'{self.module_unload} not found'),
         ])
@@ -206,8 +210,8 @@ class LmodTestUnload(LmodTestBase):
 class LmodTestCompat(LmodTestBase):
     "try to load multiple versions of the same module"
     tcname = 'foss'
-    toolchain1 = f'{tcname}/{calc_tcgen(-12)}'
-    toolchain2 = f'{tcname}/{calc_tcgen(-18)}'
+    toolchain1 = f'{tcname}/{calc_tcgen(12)}'
+    toolchain2 = f'{tcname}/{calc_tcgen(18)}'
     executable = f'module load {toolchain1}; module load {toolchain2}; module --terse list'
 
     @sanity_function
@@ -227,26 +231,22 @@ hpc@vub.be"""
 
 
 @rfm.simple_test
-class LmodTestNotOld(LmodTestBase):
-    descr += "load module that is not 'old' (no output)"
-    months = -30
-    toolchain = f'foss/{calc_tcgen(months)}'
-    executable = f'module load {toolchain}'
-
-    @sanity_function
-    def assert_no_output(self):
-        return sn.all([
-            sn.assert_not_found(r'.', self.stdout, 'no output'),
-            sn.assert_not_found(r'.', self.stderr, 'no errors'),
-        ])
-
-
-@rfm.simple_test
 class LmodTestOld(LmodTestBase):
-    descr += "load old module(shows message)"
-    months = -36
-    toolchain = f'foss/{calc_tcgen(months)}'
-    executable = f'module load {toolchain}'
+    description = "load old module(shows message)"
+    months = 36
+
+    @run_after('init')
+    def set_descr(self):
+        self.descr += f': {self.description}'
+
+    @run_after('init')
+    def set_executable(self):
+        self.toolchain = f'foss/{calc_tcgen(self.months)}'
+        self.executable = f'module load {self.toolchain}'
+
+    @run_after('init')
+    def skip_too_old(self):
+        self.skip_if(int(self.toolchain[-5:-1]) < OLDEST_TCGEN, 'installed modules are not old enough for this test')
 
     @sanity_function
     def assert_output(self):
@@ -256,11 +256,22 @@ class LmodTestOld(LmodTestBase):
 
 
 @rfm.simple_test
-class LmodTestVeryOld(LmodTestBase):
-    descr += "load very old module (shows warning)"
-    months = -48
-    toolchain = f'foss/{calc_tcgen(months)}'
-    executable = f'module load {toolchain}'
+class LmodTestNotOld(LmodTestOld):
+    description = "load module that is not 'old' (no output)"
+    months = 30
+
+    @sanity_function
+    def assert_output(self):
+        return sn.all([
+            sn.assert_not_found(r'.', self.stdout, 'no output'),
+            sn.assert_not_found(r'.', self.stderr, 'no errors'),
+        ])
+
+
+@rfm.simple_test
+class LmodTestVeryOld(LmodTestOld):
+    description = "load very old module (shows warning)"
+    months = 48
 
     @sanity_function
     def assert_output(self):
@@ -271,10 +282,14 @@ class LmodTestVeryOld(LmodTestBase):
 
 @rfm.simple_test
 class LmodTestHidden(LmodTestBase):
-    descr += "show old module (hidden)"
-    months = -36
+    descr += ": show old module (hidden)"
+    months = 36
     toolchain = f'foss/{calc_tcgen(months)}'
     executable = f'module --show-hidden av {toolchain}'
+
+    @run_after('init')
+    def skip_too_old(self):
+        self.skip_if(int(self.toolchain[-5:-1]) < OLDEST_TCGEN, 'installed modules are not old enough for this test')
 
     @sanity_function
     def assert_output(self):
@@ -283,7 +298,7 @@ class LmodTestHidden(LmodTestBase):
 
 @rfm.simple_test
 class LmodTestNonexisting(LmodTestBase):
-    descr += "load nonexisting module"
+    descr += ": load nonexisting module"
     executable = "module load DOESNOTEXIST"
 
     @sanity_function
@@ -306,17 +321,21 @@ hpc@vub.be"""
 
 @rfm.simple_test
 class LmodTestClusterModule(LmodTestBase):
-    descr += "show + load cluster module"
+    descr += ": show + load cluster module"
     module = "cluster/hydra"
-    executable = f"module av {module}; module load {module}; module --terse list {module}"
+    executable = '\n'.join([
+        f"module --terse av {module} | grep '^cluster/hydra$' || echo {module} not available",
+        f"module load {module}",
+        f"module --terse list {module}",
+    ])
 
     @sanity_function
     def assert_output(self):
         return sn.all([
             sn.assert_found(
-                r'No module\(s\) or extension\(s\) found!',
+                rf'{self.module} not available',
                 self.stdout,
-                'message: No module(s) or extension(s) found!'
+                'cluster module not available (hidden)'
             ),  # module av
             sn.assert_found(rf'^{self.module}$', self.stdout, self.module),  # module list
         ])
@@ -324,27 +343,27 @@ class LmodTestClusterModule(LmodTestBase):
 
 @rfm.simple_test
 class LmodTestLoadLmod(LmodTestBase):
-    descr += "load a foss module and check if Lmod (lua) still works"
-    toolchain = f'foss/{calc_tcgen(-42)}'
+    descr += ": load a foss module and check if Lmod (lua) still works"
+    toolchain = f'foss/{calc_tcgen(12)}'
     executable = f'module load {toolchain}; module av'
 
     @sanity_function
     def assert_output(self):
         return sn.all([
-            sn.assert_found(rf' foss/{calc_tcgen(-12)}', self.stdout, f'foss/{calc_tcgen(-12)}'),
+            sn.assert_found(rf' foss/{calc_tcgen(12)}', self.stdout, f'foss/{calc_tcgen(12)}'),
             sn.assert_found(r' Python/', self.stdout, 'Python'),
             sn.assert_found(r' R/', self.stdout, 'R'),
             sn.assert_found(
                 r'^If you need software that is not listed, request it at hpc@vub.be$',
                 self.stdout,
                 'message: If you need software that is not listed'
-                ),
+            ),
         ])
 
 
 @rfm.simple_test
 class LmodTestJavaMemory(LmodTestBase):
-    descr += "memory in Java modules"
+    descr += ": memory in Java modules"
     executable = '\n'.join([
         'module load Java',
         f'python3 -c "{check_java_memory}"',
@@ -358,9 +377,16 @@ class LmodTestJavaMemory(LmodTestBase):
 
 @rfm.simple_test
 class LmodTestCachedLoads(LmodTestBase):
-    descr += "load a module from spider cache and check for zero exit code"
+    description = ": load a module from spider cache and check for zero exit code"
     lmod_cached_loads = 1
-    executable = f'LMOD_CACHED_LOADS={lmod_cached_loads} ml foss/{calc_tcgen(-42)}'
+
+    @run_after('init')
+    def set_descr(self):
+        self.descr += f': {self.description}'
+
+    @run_after('init')
+    def set_executable(self):
+        self.executable = f'LMOD_CACHED_LOADS={self.lmod_cached_loads} ml foss/{calc_tcgen(12)}'
 
     @sanity_function
     def assert_zero_exitcode(self):
@@ -369,5 +395,5 @@ class LmodTestCachedLoads(LmodTestBase):
 
 @rfm.simple_test
 class LmodTestNotCachedLoads(LmodTestCachedLoads):
-    descr += "load a module without spider cache and check for zero exit code"
+    description = ": load a module without spider cache and check for zero exit code"
     lmod_cached_loads = 0
