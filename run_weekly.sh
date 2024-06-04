@@ -19,10 +19,12 @@ cmds=(
     "./run.sh -c cp2k_tests -n CP2KTestSingleNode"
 )
 
+total=0
 for cmd in "${cmds[@]}"; do
+    echo "$cmd"
     eval "$cmd"
     exitcode=$?
     ((total+=exitcode))
 done
 
-exit $total
+exit ${total:-0}
