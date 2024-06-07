@@ -41,7 +41,7 @@ class CP2KTestBase(rfm.RunOnlyRegressionTest):
         return sn.all([
             sn.assert_found(r'PROGRAM STOPPED IN', self.stdout),
             sn.assert_eq(sn.count(sn.extractall(
-                r'(?P<step_count>STEP NUM)',
+                r'(?P<step_count>Step number)',
                 self.stdout, 'step_count')), step_count_ref),
             sn.assert_lt(energy_diff, 1e-4)
         ])
