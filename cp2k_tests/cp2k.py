@@ -33,7 +33,7 @@ class CP2KTestBase(rfm.RunOnlyRegressionTest):
     @sanity_function
     def assert_energy(self):
         energy = sn.extractsingle(
-            r'\s+ENERGY\| Total FORCE_EVAL \( QS \) energy \(a\.u\.\):\s+(?P<energy>\S+)',
+            r'\s+ENERGY\| Total FORCE_EVAL \( QS \) energy \[a\.u\.\]:\s+(?P<energy>\S+)',
             self.stdout, 'energy', float, item=-1)
         energy_ref = -2202.1791
         energy_diff = sn.abs(energy - energy_ref)
