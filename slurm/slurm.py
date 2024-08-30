@@ -3,18 +3,41 @@ import json
 import os
 import time
 import reframe as rfm
+import reframe.core.runtime as rt
 import reframe.utility.sanity as sn
 
 
+# taken from job_submit.lua
+# the gpu lists are tuples of (partition, max_cores_per_gpu)
+PARTITION_MAP = {
+    'hydra': {
+        'gpu': [('ampere_gpu', 16), ('pascal_gpu', 12)],
+        'smp': ['skylake', 'zen4'],
+        'mpi': ['skylake_mpi'],
+    },
+    'manticore': {
+        'gpu': [('ampere_gpu', 2)],
+        'smp': ['zen3'],
+        'mpi': ['zen3_mpi'],
+    },
+    'anansi': {
+        'gpu': [('pascal_gpu', 16)],
+        'smp': ['pascal_gpu'],
+        'mpi': ['pascal_gpu'],
+    },
+}
+
+MAX_CORES_PER_NODE = 64
+
 os.environ["TEST_ENVAR_OUTSIDE"] = 'defined'
 
+# multiply affinity with 1000 and add node ID to ensure unique values across nodes
 affinity_script = """
-import json
-import os
-import time
-affinity = list(os.sched_getaffinity(0))
+import json, os, socket, time
+node_id = int(socket.gethostname().split(".")[0][len("node"):])
+affinity = [x * 1000 + node_id for x in os.sched_getaffinity(0)]
 task_id = os.getenv("SLURM_PROCID", "0") + "_" + os.getenv("SLURM_STEP_ID", "0")
-json.dump(affinity, open(f"affinity{task_id}.json", "w"))
+json.dump(affinity, open(f"affinity{task_id}_{node_id}.json", "w"))
 time.sleep(20)
 """
 
@@ -76,15 +99,27 @@ class SbatchSrunCopyEnv(SlurmTestBase):
 @rfm.simple_test
 class SbatchEnforceBinding(SlurmTestBase):
     descr += ": --gres-flags=enforce-binding set by default"
-    executable = """
+
+    @run_after('setup')
+    def get_system(self):
+        self.system = rt.runtime().system.name
+
+    @run_after('setup')
+    def set_executable(self):
+        cores = PARTITION_MAP[self.system]['gpu'][0][1] + 1
+        partition = PARTITION_MAP[self.system]['gpu'][0][0]
+        # --nodes=1 is required due to a bug (tested in slurm 23.02.7)
+        self.executable = f"""
 scontrol show job $SLURM_JOB_ID
-sbatch --wrap=hostname --ntasks-per-node=13 --gpus-per-node=1 --partition=pascal_gpu
+sbatch --wrap=hostname --ntasks-per-node={cores} --nodes=1 --gpus-per-node=1 --partition={partition}
 """
 
     @sanity_function
     def assert_forcebinding(self):
-        return sn.all([
+        asserts = [
             sn.assert_found(r'^\s*GresEnforceBind=Yes$', self.stdout, self.descr),
+        ]
+        asserts.extend([
             sn.assert_found(
                 r'sbatch: error: Batch job submission failed: Requested node configuration is not available',
                 self.stderr,
@@ -95,7 +130,9 @@ sbatch --wrap=hostname --ntasks-per-node=13 --gpus-per-node=1 --partition=pascal
                 self.stdout,
                 self.descr + ": requesting more cpus than availabe per GPU fails"
             ),
-        ])
+        ]) if self.system != 'manticore' else []
+
+        return sn.all(asserts)
 
 
 @rfm.simple_test
@@ -169,23 +206,28 @@ class TaskFarmingParallel(SbatchSrunAffinity):
 class DefaultPartitions(SlurmTestBase):
     descr += ": default list of partitions"
     tags.add('local')
-    executable = """
-function getpartitions {
+    executable = f"""
+function getpartitions {{
     jobid=$(sbatch --parsable --wrap=hostname --hold $1 | sed 's/;.*//g')
     partitions=$(squeue --noheader -o "%P" -j $jobid)
     scancel $jobid
     echo $partitions
-}
+}}
 
 cat <<EOF >partitions.json
-{
-    "singlenode": "$(getpartitions '-n 10')",
+{{
+    "singlenode": "$(getpartitions '-n 4')",
     "multinode": "$(getpartitions '-n 2 -N 2')",
-    "manycores": "$(getpartitions '-n 65')",
+    "manycores": "$(getpartitions '-n {MAX_CORES_PER_NODE + 1}')",
     "gpunode": "$(getpartitions '--gpus-per-node=1')"
-}
+}}
 EOF
 """
+
+    @run_after('setup')
+    def get_system(self):
+        self.system = rt.runtime().system.name
+        self.skip_if(self.system == 'manticore', self.descr + ': skipping test on manticore')
 
     @sanity_function
     def assert_partitions(self):
@@ -195,22 +237,22 @@ EOF
         return sn.all([
             sn.assert_not_found(".", self.stderr, self.descr + ': no error messages'),
             sn.assert_eq(
-                {'skylake', 'broadwell', 'skylake_mpi', 'zen4'},
+                set(PARTITION_MAP[self.system]['smp'] + PARTITION_MAP[self.system]['mpi']),
                 set(partitions['singlenode'].split(',')),
                 self.descr + ': singlenode partitions expected: {0}, found: {1}'
             ),
             sn.assert_eq(
-                {'skylake_mpi'},
+                set(PARTITION_MAP[self.system]['mpi']),
                 set(partitions['multinode'].split(',')),
                 self.descr + ': multinode partitions expected: {0}, found: {1}'
             ),
             sn.assert_eq(
-                {'skylake_mpi'},
+                set(PARTITION_MAP[self.system]['mpi']),
                 set(partitions['manycores'].split(',')),
                 self.descr + ': manycores partitions expected: {0}, found: {1}'
             ),
             sn.assert_eq(
-                {'ampere_gpu', 'pascal_gpu'},
+                set(PARTITION_MAP[self.system]['gpu'][0]),
                 set(partitions['gpunode'].split(',')),
                 self.descr + ': gpunode partitions expected: {0}, found: {1}'
             ),

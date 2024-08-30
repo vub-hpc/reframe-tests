@@ -34,6 +34,8 @@ reframe-tests/run.sh -c osu --valid_prog_environs foss-2022a
 reframe-tests/run.sh -c osu --partitions skylake-mn-mpi-ib
 # GROMACS GPU test in ReFrame partition zen2-ampere-sn-gpu
 reframe-tests/run.sh -c gromacs_bench --partition zen2-ampere-sn-gpu -n GMXBenchMEMSingleNodeGPU
+# Slurm tests as jobs in compute nodes
+reframe-tests/run.sh -c slurm
 ```
 
 Location of ouput and log files

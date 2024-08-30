@@ -16,13 +16,15 @@ class SlurmGPUTestBase(rfm.RunOnlyRegressionTest):
     num_tasks_per_node = 1
     num_cpus_per_task = 1
     num_gpus_per_node = 1
+    num_nodes = 1
 
 
 @rfm.simple_test
 class GPUBinding(SlurmGPUTestBase):
     descr += "allocated CPUs are on the same socket as the allocated GPU"
     modules = ['gpustat/1.1-GCCcore-11.3.0']
-    num_cpus_per_task = 3
+    num_tasks_per_node = 16
+    num_tasks = num_tasks_per_node
     executable = f'{TESTPATH}/gpu_binding.py'
 
     @run_after('init')
