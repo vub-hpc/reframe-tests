@@ -15,11 +15,6 @@ PARTITION_MAP = {
         'smp': ['skylake', 'zen4'],
         'mpi': ['skylake_mpi'],
     },
-    'chimera': {
-        'gpu': [],
-        'smp': ['broadwell_mpi', 'haswell_mpi'],
-        'mpi': ['broadwell_mpi', 'haswell_mpi'],
-    },
     'manticore': {
         'gpu': [('ampere_gpu', 2)],
         'smp': ['zen3'],
