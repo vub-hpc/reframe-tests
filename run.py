@@ -204,7 +204,7 @@ tests = [
         'checkpath': 'slurm',
         'valid_systems': {
             'hydra': ['hydra:skylake-sn'],
-            'manticore': ['manticore:skylake-sn'],
+            'manticore': ['manticore:zen3-sn'],
             'chimera': ['chimera:broadwell-sn'],
             'local': ['local:local'],
         },
@@ -216,7 +216,7 @@ tests = [
         'checkpath': 'slurm_gpu',
         'name': ['GPUBinding'],
         'valid_systems': {
-            'hydra': ['hydra:broadwell-pascal-sn-gpu'],
+            'hydra': ['hydra:zen2-ampere-sn-gpu'],
             'local': ['local:local'],
         },
         'extra': {
