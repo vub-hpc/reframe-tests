@@ -171,7 +171,7 @@ tests = [
         'checkpath': 'lmod',
         'valid_systems': {
             'hydra': ['hydra:skylake-sn'],
-            'manticore': ['manticore:skylake-sn'],
+            'manticore': ['manticore:zen3-sn'],
             'chimera': ['chimera:broadwell-sn'],
             'local': ['local:local'],
         },
