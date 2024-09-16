@@ -211,7 +211,7 @@ class LmodTestCompat(LmodTestBase):
     "try to load multiple versions of the same module"
     tcname = 'foss'
     toolchain1 = f'{tcname}/{calc_tcgen(12)}'
-    toolchain2 = f'{tcname}/{calc_tcgen(18)}'
+    toolchain2 = f'{tcname}/{calc_tcgen(24)}'
     executable = f'module load {toolchain1}; module load {toolchain2}; module --terse list'
 
     @sanity_function

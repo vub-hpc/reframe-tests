@@ -164,8 +164,7 @@ class SbatchAffinity(SlurmTestBase):
 @rfm.simple_test
 class SbatchSrunAffinity(SbatchAffinity):
     descr += ": srun affinity"
-    # set --cpus-per-task for Slurm versions >= 22.05 < 23.11 to get the same task binding across all Slurm versions
-    executable = f'srun --cpus-per-task=$SLURM_CPUS_PER_TASK {executable}'
+    executable = f'srun {executable}'
 
     @sanity_function
     def assert_affinity(self):
@@ -197,8 +196,7 @@ class TaskFarmingParallel(SbatchSrunAffinity):
     num_tasks_per_node = 1  # should work even if each task runs in a different node
     modules = ['parallel']
     affinity_script = affinity_script.replace('"', r'\"')
-    # set --cpus-per-task for Slurm versions >= 22.05 < 23.11 to get the same task binding across all Slurm versions
-    srun_options = '-n 1 -N 1 --exact --cpus-per-task=$SLURM_CPUS_PER_TASK'
+    srun_options = '-n 1 -N 1 --exact'
     executable = f"seq 1 2 | parallel -N0 -j $SLURM_NTASKS \"srun {srun_options} python3 -c '{affinity_script}'\""
 
 
@@ -252,7 +250,7 @@ EOF
                 self.descr + ': manycores partitions expected: {0}, found: {1}'
             ),
             sn.assert_eq(
-                set(PARTITION_MAP[self.system]['gpu'][0]),
+                set(x[0] for x in PARTITION_MAP[self.system]['gpu']),
                 set(partitions['gpunode'].split(',')),
                 self.descr + ': gpunode partitions expected: {0}, found: {1}'
             ),
