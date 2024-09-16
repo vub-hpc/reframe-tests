@@ -122,18 +122,19 @@ sbatch --wrap=hostname --ntasks-per-node={cores} --nodes=1 --gpus-per-node=1 --p
         asserts = [
             sn.assert_found(r'^\s*GresEnforceBind=Yes$', self.stdout, self.descr),
         ]
-        asserts.extend([
-            sn.assert_found(
-                r'sbatch: error: Batch job submission failed: Requested node configuration is not available',
-                self.stderr,
-                self.descr + ": requesting more cpus than availabe per GPU shows error"
-            ),
-            sn.assert_not_found(
-                r"^Submitted batch job",
-                self.stdout,
-                self.descr + ": requesting more cpus than availabe per GPU fails"
-            ),
-        ]) if self.system != 'manticore' else []
+        if self.system != 'manticore':
+            asserts.extend([
+                sn.assert_found(
+                    r'sbatch: error: Batch job submission failed: Requested node configuration is not available',
+                    self.stderr,
+                    self.descr + ": requesting more cpus than availabe per GPU shows error"
+                ),
+                sn.assert_not_found(
+                    r"^Submitted batch job",
+                    self.stdout,
+                    self.descr + ": requesting more cpus than availabe per GPU fails"
+                ),
+            ])
 
         return sn.all(asserts)
 
@@ -256,13 +257,14 @@ EOF
                 self.descr + ': multinode partitions expected: {0}, found: {1}'
             ),
         ]
-        asserts.extend([
-            sn.assert_eq(
-                set(PARTITION_MAP[self.system]['mpi']),
-                set(partitions['manycores'].split(',')),
-                self.descr + ': manycores partitions expected: {0}, found: {1}'
-            ),
-        ]) if self.system != 'manticore' else []
+        if self.system != 'manticore':
+            asserts.extend([
+                sn.assert_eq(
+                    set(PARTITION_MAP[self.system]['mpi']),
+                    set(partitions['manycores'].split(',')),
+                    self.descr + ': manycores partitions expected: {0}, found: {1}'
+                ),
+            ])
 
         return sn.all(asserts)
 
