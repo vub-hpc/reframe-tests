@@ -27,7 +27,10 @@ PARTITION_MAP = {
     },
 }
 
-MAX_CORES_PER_NODE = 64
+MAX_CORES_PER_NODE = {
+    'hydra': 64,
+    'manticore': 4,
+}
 
 os.environ["TEST_ENVAR_OUTSIDE"] = 'defined'
 
@@ -108,7 +111,7 @@ class SbatchEnforceBinding(SlurmTestBase):
     def set_executable(self):
         cores = PARTITION_MAP[self.system]['gpu'][0][1] + 1
         partition = PARTITION_MAP[self.system]['gpu'][0][0]
-        # --nodes=1 is required due to a bug (tested in slurm 23.02.7)
+        # --nodes=1 is required due to a bug (tested in slurm 23.02.7 and 24.05.3)
         self.executable = f"""
 scontrol show job $SLURM_JOB_ID
 sbatch --wrap=hostname --ntasks-per-node={cores} --nodes=1 --gpus-per-node=1 --partition={partition}
@@ -119,18 +122,19 @@ sbatch --wrap=hostname --ntasks-per-node={cores} --nodes=1 --gpus-per-node=1 --p
         asserts = [
             sn.assert_found(r'^\s*GresEnforceBind=Yes$', self.stdout, self.descr),
         ]
-        asserts.extend([
-            sn.assert_found(
-                r'sbatch: error: Batch job submission failed: Requested node configuration is not available',
-                self.stderr,
-                self.descr + ": requesting more cpus than availabe per GPU shows error"
-            ),
-            sn.assert_not_found(
-                r"^Submitted batch job",
-                self.stdout,
-                self.descr + ": requesting more cpus than availabe per GPU fails"
-            ),
-        ]) if self.system != 'manticore' else []
+        if self.system != 'manticore':
+            asserts.extend([
+                sn.assert_found(
+                    r'sbatch: error: Batch job submission failed: Requested node configuration is not available',
+                    self.stderr,
+                    self.descr + ": requesting more cpus than availabe per GPU shows error"
+                ),
+                sn.assert_not_found(
+                    r"^Submitted batch job",
+                    self.stdout,
+                    self.descr + ": requesting more cpus than availabe per GPU fails"
+                ),
+            ])
 
         return sn.all(asserts)
 
@@ -204,7 +208,15 @@ class TaskFarmingParallel(SbatchSrunAffinity):
 class DefaultPartitions(SlurmTestBase):
     descr += ": default list of partitions"
     tags.add('local')
-    executable = f"""
+
+    @run_after('setup')
+    def get_system(self):
+        self.system = rt.runtime().system.name
+
+    @run_after('setup')
+    def set_executable(self):
+        max_cores_per_node = MAX_CORES_PER_NODE[self.system]
+        self.executable = f"""
 function getpartitions {{
     jobid=$(sbatch --parsable --wrap=hostname --hold $1 | sed 's/;.*//g')
     partitions=$(squeue --noheader -o "%P" -j $jobid)
@@ -216,23 +228,18 @@ cat <<EOF >partitions.json
 {{
     "singlenode": "$(getpartitions '-n 4')",
     "multinode": "$(getpartitions '-n 2 -N 2')",
-    "manycores": "$(getpartitions '-n {MAX_CORES_PER_NODE + 1}')",
+    "manycores": "$(getpartitions '-n {max_cores_per_node + 1}')",
     "gpunode": "$(getpartitions '--gpus-per-node=1')"
 }}
 EOF
 """
-
-    @run_after('setup')
-    def get_system(self):
-        self.system = rt.runtime().system.name
-        self.skip_if(self.system == 'manticore', self.descr + ': skipping test on manticore')
 
     @sanity_function
     def assert_partitions(self):
         with open('partitions.json', 'r', encoding='utf-8') as json_file:
             partitions = json.load(json_file)
 
-        return sn.all([
+        asserts = [
             sn.assert_not_found(".", self.stderr, self.descr + ': no error messages'),
             sn.assert_eq(
                 set(PARTITION_MAP[self.system]['smp'] + PARTITION_MAP[self.system]['mpi']),
@@ -240,21 +247,26 @@ EOF
                 self.descr + ': singlenode partitions expected: {0}, found: {1}'
             ),
             sn.assert_eq(
-                set(PARTITION_MAP[self.system]['mpi']),
-                set(partitions['multinode'].split(',')),
-                self.descr + ': multinode partitions expected: {0}, found: {1}'
-            ),
-            sn.assert_eq(
-                set(PARTITION_MAP[self.system]['mpi']),
-                set(partitions['manycores'].split(',')),
-                self.descr + ': manycores partitions expected: {0}, found: {1}'
-            ),
-            sn.assert_eq(
                 set(x[0] for x in PARTITION_MAP[self.system]['gpu']),
                 set(partitions['gpunode'].split(',')),
                 self.descr + ': gpunode partitions expected: {0}, found: {1}'
             ),
-        ])
+            sn.assert_eq(
+                set(PARTITION_MAP[self.system]['mpi']),
+                set(partitions['multinode'].split(',')),
+                self.descr + ': multinode partitions expected: {0}, found: {1}'
+            ),
+        ]
+        if self.system != 'manticore':
+            asserts.extend([
+                sn.assert_eq(
+                    set(PARTITION_MAP[self.system]['mpi']),
+                    set(partitions['manycores'].split(',')),
+                    self.descr + ': manycores partitions expected: {0}, found: {1}'
+                ),
+            ])
+
+        return sn.all(asserts)
 
 
 @rfm.simple_test
