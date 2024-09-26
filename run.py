@@ -27,7 +27,7 @@ parser.add_argument('-c', '--checkpath', dest='checkpath', required=True,
                     help='path (relative to this script) of test directory or script')
 parser.add_argument('-n', '--name', dest='name', action='append',
                     help='check name')
-parser.add_argument('--system', dest='system', choices=['hydra', 'chimera', 'manticore', 'local'],
+parser.add_argument('--system', dest='system', choices=['anansi', 'hydra', 'local', 'manticore'],
                     default='hydra', help='run tests in given cluster')
 parser.add_argument('--partitions', dest='partitions',
                     help='comma-separated list of ReFrame partitions')
@@ -205,7 +205,7 @@ tests = [
         'valid_systems': {
             'hydra': ['hydra:skylake-sn'],
             'manticore': ['manticore:zen3-sn'],
-            'chimera': ['chimera:broadwell-sn'],
+            'anansi': ['anansi:broadwell-sn'],
             'local': ['local:local'],
         },
         'extra': {
