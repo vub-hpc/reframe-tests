@@ -70,6 +70,31 @@ class SlurmTestBase(rfm.RunOnlyRegressionTest):
 
 
 @rfm.simple_test
+class Sinfo(SlurmTestBase):
+    descr += ": sinfo partition"
+    executable = "sinfo -s --noheader -o '%P'"
+
+    @run_after('setup')
+    def get_system(self):
+        self.system = rt.runtime().system.name
+
+    @sanity_function
+    def assert_partitions(self):
+        part_map = PARTITION_MAP[self.system]
+        partitions = set([x[0] for x in part_map['gpu']] + part_map['smp'] + part_map['mpi'])
+        asserts = [sn.assert_found(rf'^{x}\*?$', self.stdout, f'{self.descr} {x}') for x in partitions]
+        return sn.all(asserts)
+
+
+@rfm.simple_test
+class SinfoCluster(Sinfo):
+    descr += ": specify cluster"
+
+    @run_after('setup')
+    def set_executable(self):
+        self.executable += f" --clusters {self.system}"
+
+@rfm.simple_test
 class SbatchCleanEnv(SlurmTestBase):
     descr += ": sbatch starts in clean environment"
     exe = 'print(os.getenv("TEST_ENVAR_OUTSIDE") is None)'
