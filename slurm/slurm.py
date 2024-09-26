@@ -81,8 +81,8 @@ class Sinfo(SlurmTestBase):
     @sanity_function
     def assert_partitions(self):
         part_map = PARTITION_MAP[self.system]
-        partitions = [x[0] for x in part_map['gpu']] + part_map['smp'] + part_map['mpi']
-        asserts = [sn.assert_found(rf'^{x}$', self.stdout, f'{self.descr} x') for x in partitions]
+        partitions = set([x[0] for x in part_map['gpu']] + part_map['smp'] + part_map['mpi'])
+        asserts = [sn.assert_found(rf'^{x}\*?$', self.stdout, f'{self.descr} {x}') for x in partitions]
         return sn.all(asserts)
 
 
