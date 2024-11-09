@@ -337,7 +337,7 @@ class LmodTestClusterModule(LmodTestBase):
                 self.stdout,
                 'cluster module not available (hidden)'
             ),  # module av
-            sn.assert_found(rf'^{self.module}$', self.stdout, self.module),  # module list
+            sn.assert_found(rf'^{self.module} <H>$', self.stdout, self.module),  # module list
         ])
 
 
