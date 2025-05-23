@@ -38,11 +38,14 @@ environs_cpu = [
     'intel-2022a',
     'foss-2023a',
     'intel-2023a',
+    'foss-2024a',
+    'intel-2024a',
 ]
 
 environs_gpu = [
     'foss-2022a-cuda',
     'foss-2023a-cuda',
+    'foss-2024a-cuda',
 ]
 
 # workaround for old modules which emit a warning upon load and non-zero exit code
@@ -191,6 +194,30 @@ site_configuration = {
                     'environs': environs_cpu,
                     'prepare_cmds': prepare_cmds,
                     'descr': 'MPI jobs in Zen4 nodes',
+                    'max_jobs': 1,
+                    'launcher': 'srun',
+                },
+                {
+                    'name': 'zen5-sn',
+                    'scheduler': 'slurm',
+                    'sched_options': sched_options,
+                    'modules': [],
+                    'access': ['--partition=zen5_mpi'],
+                    'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
+                    'descr': 'single-node jobs in Zen5 nodes',
+                    'max_jobs': 10,
+                    'launcher': 'local',
+                },
+                {
+                    'name': 'zen5-mpi',
+                    'scheduler': 'slurm',
+                    'sched_options': sched_options,
+                    'modules': [],
+                    'access': ['--partition=zen5_mpi'],
+                    'environs': environs_cpu,
+                    'prepare_cmds': prepare_cmds,
+                    'descr': 'MPI jobs in Zen5 nodes',
                     'max_jobs': 1,
                     'launcher': 'srun',
                 },
@@ -393,6 +420,20 @@ site_configuration = {
             'ftn': 'mpiifort',
         },
         {
+            'name': 'foss-2024a',
+            'modules': ['foss/2024a', 'Autotools/20231222-GCCcore-13.3.0'],
+            'cc': 'mpicc',
+            'cxx': 'mpicxx',
+            'ftn': 'mpif90',
+        },
+        {
+            'name': 'intel-2024a',
+            'modules': ['intel/2024a', 'Autotools/20231222-GCCcore-13.3.0'],
+            'cc': 'mpiicc',
+            'cxx': 'mpiicpc',
+            'ftn': 'mpiifort',
+        },
+        {
             'name': 'foss-2022a-cuda',
             'modules': ['foss/2022a', 'CUDA/11.7.0', 'Autotools/20220317-GCCcore-11.3.0'],
             'cc': 'mpicc',
@@ -402,6 +443,13 @@ site_configuration = {
         {
             'name': 'foss-2023a-cuda',
             'modules': ['foss/2023a', 'CUDA/12.1.1', 'Autotools/20220317-GCCcore-12.3.0'],
+            'cc': 'mpicc',
+            'cxx': 'mpicxx',
+            'ftn': 'mpif90',
+        },
+        {
+            'name': 'foss-2024a-cuda',
+            'modules': ['foss/2024a', 'CUDA/12.6.0', 'Autotools/20231222-GCCcore-13.3.0'],
             'cc': 'mpicc',
             'cxx': 'mpicxx',
             'ftn': 'mpif90',

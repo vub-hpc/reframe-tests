@@ -6,6 +6,7 @@ cmds=(
     # shared storage test
     "./run.sh -c ior --partitions skylake-mn-mpi-ib"
     "./run.sh -c ior --partitions skylake-mn-mpi-eth"
+    "./run.sh -c ior --partitions zen5-mpi"
 
     # multi-node tests
     "./run.sh -c osu"
