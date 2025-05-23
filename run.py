@@ -5,7 +5,6 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, RawDescripti
 import os
 from pprint import pprint
 import sys
-import textwrap
 
 
 class CustomFormatter(ArgumentDefaultsHelpFormatter, RawDescriptionHelpFormatter):
@@ -45,7 +44,7 @@ tests = [
         'checkpath': 'blas-tester',
         'valid_prog_environs': ['foss-2023a', 'intel-2023a'],
         'valid_systems': {
-            'hydra': ['hydra:skylake-sn', 'hydra:zen4-sn'],
+            'hydra': ['hydra:skylake-sn', 'hydra:zen4-sn', 'hydra:zen5-sn'],
             'chimera': ['chimera:broadwell-sn', 'chimera:haswell-sn'],
             'manticore': ['manticore:zen3-sn'],
             'local': ['local:local'],
@@ -62,7 +61,7 @@ tests = [
         'checkpath': 'cp2k_tests',
         'name': ['CP2KTestSingleNode'],
         'valid_systems': {
-            'hydra': ['hydra:skylake-sn-mpi', 'hydra:zen4-mpi'],
+            'hydra': ['hydra:skylake-sn-mpi', 'hydra:zen4-mpi', 'hydra:zen5-mpi'],
             'chimera': ['chimera:broadwell-mpi', 'chimera:haswell-mpi'],
             'manticore': ['manticore:zen3-mpi'],
             'local': ['local:local'],
@@ -81,7 +80,7 @@ tests = [
         'checkpath': 'cp2k_tests',
         'name': ['CP2KTestMultiNode'],
         'valid_systems': {
-            'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:zen4-mpi'],
+            'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:zen4-mpi', 'hydra:zen5-mpi'],
             'chimera': ['chimera:broadwell-mpi', 'chimera:haswell-mpi'],
             'local': ['local:local-mpi'],
         },
@@ -99,7 +98,7 @@ tests = [
         'checkpath': 'gromacs_bench',
         'name': ['GMXBenchMEMMultiNode'],
         'valid_systems': {
-            'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:zen4-mpi'],
+            'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:zen4-mpi', 'hydra:zen5-mpi'],
             'chimera': ['chimera:broadwell-mpi', 'chimera:haswell-mpi'],
             'local': ['local:local-mpi'],
         },
@@ -117,7 +116,7 @@ tests = [
         'checkpath': 'gromacs_bench',
         'name': ['GMXBenchMEMSingleNode'],
         'valid_systems': {
-            'hydra': ['hydra:skylake-sn', 'hydra:zen4-sn'],
+            'hydra': ['hydra:skylake-sn', 'hydra:zen4-sn', 'hydra:zen5-sn'],
             'chimera': ['chimera:broadwell-sn', 'chimera:haswell-sn'],
             'manticore': ['manticore:zen3-sn'],
             'local': ['local:local'],
@@ -152,7 +151,7 @@ tests = [
         'checkpath': 'ior',
         'valid_prog_environs': ['foss-2023a'],
         'valid_systems': {
-            'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:skylake-mn-mpi-eth'],
+            'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:skylake-mn-mpi-eth', 'hydra:zen5-mpi'],
             'local': ['local:local-mpi'],
         },
         'setvar_extra': {
@@ -170,7 +169,7 @@ tests = [
     {
         'checkpath': 'lmod',
         'valid_systems': {
-            'hydra': ['hydra:skylake-sn'],
+            'hydra': ['hydra:zen4-sn'],
             'manticore': ['manticore:zen3-sn'],
             'chimera': ['chimera:broadwell-sn'],
             'local': ['local:local'],
@@ -183,7 +182,7 @@ tests = [
         'checkpath': 'osu',
         'valid_prog_environs': ['foss-2023a', 'intel-2023a'],
         'valid_systems': {
-            'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:zen4-mpi'],
+            'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:zen4-mpi', 'hydra:zen5-mpi'],
             'manticore': ['manticore:zen3-mpi'],
             'chimera': ['chimera:broadwell-mpi', 'chimera:haswell-mpi'],
             'local': ['local:local-mpi'],
@@ -203,7 +202,7 @@ tests = [
     {
         'checkpath': 'slurm',
         'valid_systems': {
-            'hydra': ['hydra:skylake-sn'],
+            'hydra': ['hydra:zen4-sn'],
             'manticore': ['manticore:zen3-sn'],
             'anansi': ['anansi:broadwell-sn'],
             'local': ['local:local'],
