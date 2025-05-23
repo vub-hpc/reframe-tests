@@ -45,7 +45,6 @@ tests = [
         'valid_prog_environs': ['foss-2023a', 'intel-2023a'],
         'valid_systems': {
             'hydra': ['hydra:skylake-sn', 'hydra:zen4-sn', 'hydra:zen5-sn'],
-            'chimera': ['chimera:broadwell-sn', 'chimera:haswell-sn'],
             'manticore': ['manticore:zen3-sn'],
             'local': ['local:local'],
         },
@@ -62,7 +61,6 @@ tests = [
         'name': ['CP2KTestSingleNode'],
         'valid_systems': {
             'hydra': ['hydra:skylake-sn-mpi', 'hydra:zen4-mpi', 'hydra:zen5-mpi'],
-            'chimera': ['chimera:broadwell-mpi', 'chimera:haswell-mpi'],
             'manticore': ['manticore:zen3-mpi'],
             'local': ['local:local'],
         },
@@ -81,7 +79,6 @@ tests = [
         'name': ['CP2KTestMultiNode'],
         'valid_systems': {
             'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:zen4-mpi', 'hydra:zen5-mpi'],
-            'chimera': ['chimera:broadwell-mpi', 'chimera:haswell-mpi'],
             'local': ['local:local-mpi'],
         },
         'setvar_extra': {
@@ -99,7 +96,6 @@ tests = [
         'name': ['GMXBenchMEMMultiNode'],
         'valid_systems': {
             'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:zen4-mpi', 'hydra:zen5-mpi'],
-            'chimera': ['chimera:broadwell-mpi', 'chimera:haswell-mpi'],
             'local': ['local:local-mpi'],
         },
         'setvar_extra': {
@@ -117,7 +113,6 @@ tests = [
         'name': ['GMXBenchMEMSingleNode'],
         'valid_systems': {
             'hydra': ['hydra:skylake-sn', 'hydra:zen4-sn', 'hydra:zen5-sn'],
-            'chimera': ['chimera:broadwell-sn', 'chimera:haswell-sn'],
             'manticore': ['manticore:zen3-sn'],
             'local': ['local:local'],
         },
@@ -171,7 +166,6 @@ tests = [
         'valid_systems': {
             'hydra': ['hydra:zen4-sn'],
             'manticore': ['manticore:zen3-sn'],
-            'chimera': ['chimera:broadwell-sn'],
             'local': ['local:local'],
         },
         'extra': {
@@ -184,7 +178,6 @@ tests = [
         'valid_systems': {
             'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:zen4-mpi', 'hydra:zen5-mpi'],
             'manticore': ['manticore:zen3-mpi'],
-            'chimera': ['chimera:broadwell-mpi', 'chimera:haswell-mpi'],
             'local': ['local:local-mpi'],
         },
         'setvar_extra': {
