@@ -109,8 +109,18 @@ class iorReadTest(iorTestBase):
     def post_init(self):
         self.depends_on('iorWriteTest')
         self.depends_on('iorBuildTest')
-        self.executable_opts.extend(['-r', '-M', '$(( SLURM_MEM_PER_CPU * SLURM_TASKS_PER_NODE / (1024 * 2) ))G'])
-        self.postrun_cmds = [f'rm -rf {os.path.dirname(self.testfile)}']
+        self.executable_opts.extend(['-r'])
+        self.postrun_cmds = [
+            f'rm -rf {os.path.dirname(self.testfile)}',
+            'path_v2=/sys/fs/cgroup/$(</proc/self/cpuset)/../../../memory.peak',
+            'path_v1=/sys/fs/cgroup/memory/$(</proc/self/cpuset)/../memory.max_usage_in_bytes',
+            'if [[ -f $path_v2 ]]; then MAX_MEM_IN_BYTES=$(<$path_v2)',
+            'elif [[ -f $path_v1 ]]; then MAX_MEM_IN_BYTES=$(<$path_v1)',
+            'fi',
+            '[[ $MAX_MEM_IN_BYTES =~ ^-?[0-9]+$ ]] || (echo ERROR: unable to get memory usage; exit 1)',
+            'echo "MAX_MEM_IN_BYTES=$MAX_MEM_IN_BYTES"',
+            'echo "MAX_MEM_IN_MIB=$(($MAX_MEM_IN_BYTES/1048576))"',
+        ]
 
     @require_deps
     def set_executable(self, iorBuildTest):

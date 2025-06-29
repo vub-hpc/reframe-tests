@@ -42,7 +42,7 @@ name = args.name
 tests = [
     {
         'checkpath': 'blas-tester',
-        'valid_prog_environs': ['foss-2023a', 'intel-2023a'],
+        'valid_prog_environs': ['foss-2024a', 'intel-2024a'],
         'valid_systems': {
             'hydra': ['hydra:skylake-sn', 'hydra:zen4-sn', 'hydra:zen5-sn'],
             'manticore': ['manticore:zen3-sn'],
@@ -144,7 +144,7 @@ tests = [
     },
     {
         'checkpath': 'ior',
-        'valid_prog_environs': ['foss-2023a'],
+        'valid_prog_environs': ['foss-2024a'],
         'valid_systems': {
             'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:skylake-mn-mpi-eth', 'hydra:zen5-mpi'],
             'local': ['local:local-mpi'],
@@ -174,7 +174,7 @@ tests = [
     },
     {
         'checkpath': 'osu',
-        'valid_prog_environs': ['foss-2023a', 'intel-2023a'],
+        'valid_prog_environs': ['foss-2024a', 'intel-2024a'],
         'valid_systems': {
             'hydra': ['hydra:skylake-mn-mpi-ib', 'hydra:zen4-mpi', 'hydra:zen5-mpi'],
             'manticore': ['manticore:zen3-mpi'],
