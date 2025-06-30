@@ -429,9 +429,9 @@ site_configuration = {
         {
             'name': 'intel-2024a',
             'modules': ['intel/2024a', 'Autotools/20231222-GCCcore-13.3.0'],
-            'cc': 'mpiicc',
-            'cxx': 'mpiicpc',
-            'ftn': 'mpiifort',
+            'cc': 'mpiicx',
+            'cxx': 'mpiicpx',
+            'ftn': 'mpiifx',
         },
         {
             'name': 'foss-2022a-cuda',

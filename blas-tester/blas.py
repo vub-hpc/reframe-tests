@@ -34,8 +34,6 @@ class BLASTest(rfm.RunOnlyRegressionTest):
         self.depends_on('BLASBuildTest')
         self.env_vars = {
             'OMP_NUM_THREADS': f'{self.num_cpus_per_task}',
-            'OMP_PLACES': 'sockets',
-            'OMP_PROC_BIND': 'close',
         }
 
     @require_deps
@@ -75,6 +73,7 @@ class BLASBuildTest(rfm.CompileOnlyRegressionTest):
     @run_before('compile')
     def set_build_system_options(self):
         self.build_system.options = [
+            'CODEBITS=-Wno-implicit-function-declaration',
             f'NUMTHREADS={self.num_cpus_per_task}',
             'USE_OPENMP=1',
             'L2SIZE=$(getconf LEVEL2_CACHE_SIZE)',
