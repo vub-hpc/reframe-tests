@@ -1,11 +1,7 @@
-ml ReFrame/4.7.4-GCCcore-13.3.0
+ml ReFrame/4.7.4-GCCcore-13.3.0 GitPython/3.1.43-GCCcore-13.3.0
 
 export REFRAME_HOME=$PWD
 echo REFRAME_HOME=$REFRAME_HOME
-
-# append system site-packages to PYTHONPATH so reframe finds packages git and gitdb
-# this is due to reframe being started with 'python3 -S'
-export PYTHONPATH=$PYTHONPATH:/usr/lib64/python3.6/site-packages:/usr/lib/python3.6/site-packages
 
 export REFRAME_SOURCEPATH='/apps/brussel/sources'
 
