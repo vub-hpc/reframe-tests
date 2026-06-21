@@ -1,0 +1,2 @@
+[flake8]
+builtins = descr, parameter, performance_function, required, require_deps, run_after, run_before, sanity_function, tags, variable
